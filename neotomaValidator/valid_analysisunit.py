@@ -11,9 +11,9 @@ def valid_analysisunit(yml_dict, csv_file):
     for k in inputs:
         if len(inputs[k]) == 0:
             response['message'].append(f'? {k} has no values.')
-            response['valid'].append(False)
+            response['valid'].append(True)
         else:
-            response['message'].append(f'✔ {k} looks valid.')
+            response['message'].append(f'✔ {k} has values.')
             response['valid'].append(True)
     response['valid'] = all(response['valid'])
 
