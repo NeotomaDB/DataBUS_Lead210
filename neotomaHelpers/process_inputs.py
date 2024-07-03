@@ -40,7 +40,7 @@ def process_inputs(inputs, response=None, name = None, values = None):
                 else:
                     response['given_handle'] = False
                     response['message'].append(f"A new Handle will be generated")
-                    inputs[name] = str(inputs['corecode'][0])[:10]
+                    inputs[name] = str(inputs['core'][0])[:10]
 
     # Check other values
     if values is not None:

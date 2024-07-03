@@ -3,7 +3,7 @@ import os
 
 def hash_file(filename):
     response = {'pass': False, 'hash': None, 'message': []}
-    logfile = filename + '.log'
+    logfile = 'validation_logs/' + filename + '.valid.log'
     response['hash'] = hashlib.md5(open(filename,'rb').read()).hexdigest()
     response["message"].append(response['hash'])
     if os.path.exists(logfile):
