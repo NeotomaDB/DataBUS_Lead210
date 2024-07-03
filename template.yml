@@ -321,7 +321,7 @@ metadata:
   vocab: null
 - column: Geographic.coordinates
   neotoma: ndb.sites.geog
-  overwrite: true
+  overwrite: false
   required: true
   rowwise: false
   type: coordinates (lat,long)
@@ -381,13 +381,13 @@ metadata:
   type: integer
 - column: Site.coordinates
   neotoma: ndb.collectionunits.geog
-  overwrite: true
+  overwrite: false
   required: false
   rowwise: false
   type: coordinates (lat,long)
 - column: Site.name
   neotoma: ndb.sites.sitename
-  overwrite: false
+  overwrite: true
   required: true
   rowwise: false
   type: string
