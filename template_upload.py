@@ -2,10 +2,11 @@ import json
 import os
 import psycopg2
 import glob
+from datetime import datetime
 from dotenv import load_dotenv
 import neotomaHelpers as nh
 import neotomaUploader as nu
-from neotomaValidator.csv_validator import csv_validator
+from neotomaValidator.valid_csv import valid_csv
 from neotomaValidator.check_file import check_file
 from neotomaHelpers.logging_dict import logging_dict
 """
@@ -43,23 +44,29 @@ for filename in filenames:
     test_dict = {}
     print(filename)
     logfile = []
+
     hashcheck = nh.hash_file(filename)
     filecheck = check_file(filename)
 
+    logfile = logfile + hashcheck['message'] + filecheck['message']
+    logfile.append(f"\nNew Upload started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+    uploader = {'hashcheck': {'valid':False}}
     if hashcheck['pass'] is False and filecheck['pass'] is False:
         csv_template = nh.read_csv(filename)
         logfile.append("File must be properly validated before it can be uploaded.")
+        #uploader['hashcheck']['valid'] = False
     else:
         csv_template = nh.read_csv(filename)
+        uploader['hashcheck']['valid'] = True
         # This possibly needs to be fixed. How do we know that there is one or more header rows?
 
-    uploader = {}
  
     yml_dict = nh.template_to_dict(temp_file=args['template'])
     yml_data = yml_dict['metadata']
 
     # Verify that the CSV columns and the YML keys match
-    csv_valid = csv_validator(filename = filename,
+    csv_valid = valid_csv(filename = filename,
                                 yml_data = yml_data)
 
     logfile.append('\n=== Inserting New Site ===')
@@ -184,8 +191,8 @@ for filename in filenames:
 
     if all_true:
         print(f"{filename} was uploaded.\nMoved {filename} to the 'uploaded_files' folder.")
-        #conn.commit()
-        conn.rollback()
+        conn.commit()
+        #conn.rollback()
         if not os.path.exists(uploaded_files):
            os.makedirs(uploaded_files)
         uploaded_path = os.path.join(uploaded_files, os.path.basename(filename))

@@ -49,13 +49,13 @@ for filename in filenames:
         #vocab_ = nv.vocabDict(yml_data)
 
         logfile.append('\n=== File Validation ===')
-        validator['csvValid'] = nv.csv_validator(filename = filename,
+        validator['csvValid'] = nv.valid_csv(filename = filename,
                                    yml_data = yml_data)
         logfile = logging_dict(validator['csvValid'], logfile)
 
         logfile.append('\n === Validating Template Unit Definitions ===')
         df = pd.read_csv(filename)
-        validator['units'] = nv.validUnits(cur = cur,
+        validator['units'] = nv.valid_units(cur = cur,
                                  yml_dict = yml_dict,
                                  df = df)
         logfile = logging_dict(validator['units'], logfile)
