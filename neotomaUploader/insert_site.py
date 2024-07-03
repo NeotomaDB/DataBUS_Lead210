@@ -104,8 +104,12 @@ def insert_site(cur, yml_dict, csv_template):
             response['siteid'] = cur.fetchone()[0]
 
         elif len(site_info) == 0:
-            response['valid'].append(False)
-            response['message'].append(f"✗ Site ID {response['siteid']} is not currently associated to a site in Neotoma.")
+            if overwrite['sitename'] == True:
+                response['valid'].append(True)
+                response['message'].append(f"✔  Overwrite is set to True. Site ID {response['siteid']} is not currently associated to a site in Neotoma. New Site ID will be given.")
+            else:
+                response['valid'].append(False)
+                response['message'].append(f"✗  Overwrite is set to False. Site ID {response['siteid']} is not currently associated to a site in Neotoma.")
             cur.execute(site_query, inputs)
             response['siteid'] = cur.fetchone()[0]
             site = {'id': response['siteid'], 'name': inputs['sitename'], 'coordlo': inputs['coordlo'], 'coordla': inputs['coordla']}

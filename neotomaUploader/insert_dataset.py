@@ -27,10 +27,10 @@ def insert_dataset(cur, yml_dict, csv_template, uploader):
     inputs = dict()
     ds_name = nh.retrieve_dict(yml_dict, 'ndb.datasets.datasetname')
     inputs['datasetname'] = ds_name[0]['value']
-    ds_id = nh.retrieve_dict(yml_dict, 'ndb.datasettypes.datasettypeid')
-    inputs['datasettype'] = ds_id[0]['value']
-
-   # inputs['datasettype'] = inputs['datasettypeid']['value'] # Placeholder! Where in the template should this go?
+    #ds_id = nh.retrieve_dict(yml_dict, 'ndb.datasettypes.datasettypeid')
+    #inputs['datasettype'] = ds_id[0]['value']
+    inputs['datasettype'] = 'pollen'
+    # inputs['datasettype'] = inputs['datasettypeid']['value'] # Placeholder! Where in the template should this go?
     query = "SELECT datasettypeid FROM ndb.datasettypes WHERE LOWER(datasettype) = %(ds_type)s"
     cur.execute(query,{'ds_type': inputs['datasettype'].lower()})
     inputs['datasettypeid'] = cur.fetchone()[0]
@@ -66,4 +66,4 @@ def insert_dataset(cur, yml_dict, csv_template, uploader):
         response['valid'].append(False)
         response['message'].append("✗ Dataset Info is not correct. Creating temporary Dataset info.")
     response['valid'] = all(response['valid'])
-    return response
+    return response 

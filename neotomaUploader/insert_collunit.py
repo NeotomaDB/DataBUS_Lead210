@@ -4,6 +4,7 @@ with open('./sqlHelpers/collunit_query.sql', 'r') as sql_file:
 with open('./sqlHelpers/upsert_collunit.sql', 'r') as sql_file:
     upsert_query = sql_file.read()
 
+
 def insert_collunit(cur, yml_dict, csv_template, uploader):
     """_Insert a new collection unit to a site_
 
@@ -25,7 +26,7 @@ def insert_collunit(cur, yml_dict, csv_template, uploader):
     except AssertionError:
         response['message'].append("✗ The template must contain a collectionunit handle.", exc_info = True)
     
-    params = ["handle", "corecode", "colltypeid", "depenvtid", "collunitname", "colldate", "colldevice",
+    params = ["handle", "core", "colltypeid", "depenvtid", "collunitname", "colldate", "colldevice",
               "gpsaltitude", "gpserror", "waterdepth", "substrateid", "slopeaspect", "slopeangle", 
               "location", "notes", "geog"]
     # geog retrieves the elements for gpslatitude and gpslongitude
@@ -36,7 +37,8 @@ def insert_collunit(cur, yml_dict, csv_template, uploader):
     inputs = dict(map(lambda item: (item[0], None if all([i is None for i in item[1]]) else item[1]),
                       inputs.items()))
     overwrite = nh.pull_overwrite(params, yml_dict, 'ndb.collectionunits')
-    nh.process_inputs(inputs, response, 'handle', values = ['corecode', 'depenvtid', 'colldate', 'location'])
+    nh.process_inputs(inputs, response, 'handle', values = ['core', 'depenvtid', 'colldate', 'location'])
+    
     if inputs['depenvtid'] is not None:
         query = """SELECT depenvtid FROM ndb.depenvttypes
                    WHERE LOWER(depenvt) = %(depenvt)s"""
@@ -120,8 +122,12 @@ def insert_collunit(cur, yml_dict, csv_template, uploader):
         elif len(coll_info) == 0:
             response['message'].append(f"Collunit not found")
             inputs['siteid'] = uploader['sites']['siteid']
-            response['valid'].append(False)
-            response['message'].append(f"✗ Collection Unit ID {response['collunitid']} is not currently associated to a Collection Unit in Neotoma.")
+            if overwrite['handle'] == True:
+                response['valid'].append(True)
+                response['message'].append(f"✔  Overwrite is set to True. Collection Unit ID {response['collunitid']} is not currently associated to a Collection Unit in Neotoma. New Collection unit will be created.")
+            else:
+                response['valid'].append(False)
+                response['message'].append(f"✗  Overwrite is set to False. Collection Unit ID {response['collunitid']} is not currently associated to a Collection Unit in Neotoma.")
             inputs['handle'] = inputs['handle'][:10]
             cur.execute(collunit_query, inputs)
             response['collunits'].append(inputs)
