@@ -8,7 +8,7 @@ Example:/
 python 210Pb_Template/neotomaUploader/csvValidator.py --path=210Pb_Template/data/ --template=210Pb_Template/template.yml
 """
 
-def csv_validator(filename, yml_data):
+def valid_csv(filename, yml_data):
     """_Validate csv file for use in the validator._
 
     Args:
@@ -18,8 +18,8 @@ def csv_validator(filename, yml_data):
     Returns:
         _type_: _description_
     """
-    log_file = {'valid': False, 'message': []}
-    #log_file = []
+    response = {'valid': [], 'message': []}
+    #response = []
     # Take directly from .yml file
     col_values = [d.get('column') for d in yml_data]
     # Remove specific columns from col_values as they are taken from the metadata in the xlsx template
@@ -33,7 +33,7 @@ def csv_validator(filename, yml_data):
         # Load csv file as data frame and extract columns
         df = pd.read_csv(filename)
     except pd.errors.ParserError:
-        log_file['message'].append(f"✗  Error opening file '{filename}': {e}"+ '\n')    
+        response['message'].append(f"✗  Error opening file '{filename}': {e}"+ '\n')    
 
     df_columns = list(df.columns)
     # Verify that all columns from the DF are in the YAML file
@@ -45,12 +45,12 @@ def csv_validator(filename, yml_data):
     # Report in the log
     if diff_col == diff_val:
         message = ["✔  The column names and flattened YAML keys match"]
-        log_file['message'] = log_file['message'] + message
-        log_file['valid'] = True
+        response['message'].append(message)
+        response['valid'].append(True)
     else:
-        log_file['message'] = log_file['message'] + ["✗  The column names and flattened YAML keys do not match"]
-        log_file['message'] = log_file['message'] + [f"Columns from the data frame not in the YAML template: {diff_val}"]
-        log_file['message'] = log_file['message'] + [f"Columns from the YAML template are not in the data frame: {diff_col}"]
-        log_file['valid'] = False
-
-    return log_file
+        response['message'].append(["✗  The column names and flattened YAML keys do not match"])
+        response['message'].append([f"Columns from the data frame not in the YAML template: {diff_val}"])
+        response['message'].append([f"Columns from the YAML template are not in the data frame: {diff_col}"])
+        response['valid'].append(False)
+    response['valid'] = all(response['valid'])
+    return response

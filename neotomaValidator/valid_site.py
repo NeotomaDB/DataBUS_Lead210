@@ -1,4 +1,5 @@
 from neotomaHelpers.pull_params import pull_params
+import neotomaHelpers as nh
 
 def valid_site(cur, yml_dict, csv_file):
     """
@@ -31,6 +32,7 @@ def valid_site(cur, yml_dict, csv_file):
     params = ["sitename", "altitude", "area", "sitedescription", "notes", "geog", "siteid"]
     inputs = pull_params(params, yml_dict, csv_file, 'ndb.sites')
     inputs['siteid'] = None if inputs['siteid'][0] == 'NA' else int(inputs['siteid'][0])
+    overwrite = nh.pull_overwrite(params, yml_dict, 'ndb.collectionunits')
     coords = inputs['geog']
 
     if len(coords) == 2 and -90 <= coords[0] <= 90 and -180 <= coords[1] <= 180:
@@ -94,14 +96,24 @@ def valid_site(cur, yml_dict, csv_file):
                 coord_match = float(site['coordlo']) == coords[1] and float(site['coordla']) == coords[0]
                 response['matched']['namematch'] = name_match
                 response['matched']['distmatch'] = coord_match
-                response['valid'].append(name_match and coord_match)
+                response['valid'].append(name_match)
                 response['message'].append(site)
                 if not name_match:
                     response['message'].append(f"✗ The sitenames do not match. Current sitename in Neotoma: {site['name']}. Proposed name: {inputs['sitename'][0]}.")
+                else:
+                    response['message'].append("✔  Names match")
                 if not coord_match:
-                    response['message'].append("✗ Coordinates do not match.")
-                    response['message'].append(f"✗ Current latitude in Neotoma: {site['coordla']}. Proposed latitude: {coords[0]}.")
-                    response['message'].append(f"✗ Current longitude in Neotoma: {site['coordlo']}. Proposed longitude: {coords[1]}.")
+                    # add that the point is not further than 10 km
+                    if not overwrite['geog']:
+                        response['message'].append("? Coordinates do not match. Neotoma coordinates will stay in place.")
+                        response['message'].append(f"? Current latitude in Neotoma: {site['coordla']}. Proposed latitude: {coords[0]}.")
+                        response['message'].append(f"? Current longitude in Neotoma: {site['coordlo']}. Proposed longitude: {coords[1]}.")
+                    else:
+                        response['message'].append("? Coordinates do not match. Proposed coordinates will stay in place.")
+                        response['message'].append(f"? Current latitude in Neotoma: {site['coordla']}. Proposed latitude: {coords[0]}.")
+                        response['message'].append(f"? Current longitude in Neotoma: {site['coordlo']}. Proposed longitude: {coords[1]}.")
+                else:
+                    response['message'].append("✔  Coordinates match")
 
     response['valid'] = all(response['valid'])
                 

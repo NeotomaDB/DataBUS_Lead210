@@ -1,5 +1,4 @@
-def validUnits(cur, yml_dict, df):   
-    # Update the function documentation to reflect the current implementation and parameters
+def valid_units(cur, yml_dict, df):   
     """
     Validate the units in the DataFrame based on the vocabulary specified in the YAML configuration.
 

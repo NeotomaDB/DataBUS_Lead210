@@ -85,6 +85,6 @@ def valid_collunit(cur, yml_dict, csv_file):
     else:
         response['valid'].append(False)
         response['message'].append('✗  The coordinates for this site are improperly formatted.')
-    
+
     response['valid'] = all(response['valid'])
     return response
