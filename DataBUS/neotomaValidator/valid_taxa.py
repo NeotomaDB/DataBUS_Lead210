@@ -1,4 +1,4 @@
-from neotomaHelpers.pull_params import pull_params
+from DataBUS.neotomaHelpers.pull_params import pull_params
 
 def valid_taxa(cur, csv_template, yml_dict):
     """_Get taxa content from Neotoma_

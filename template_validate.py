@@ -11,9 +11,9 @@ import os
 import psycopg2
 import pandas as pd
 from dotenv import load_dotenv
-import neotomaValidator as nv
-import neotomaHelpers as nh
-from neotomaHelpers.logging_dict import logging_dict
+import DataBUS.neotomaValidator as nv
+import DataBUS.neotomaHelpers as nh
+from DataBUS.neotomaHelpers.logging_dict import logging_dict
 
 # Obtain arguments and parse them to handle command line arguments
 args = nh.parse_arguments()

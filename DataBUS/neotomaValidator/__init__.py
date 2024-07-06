@@ -6,7 +6,7 @@ import itertools
 import argparse
 import os
 
-import neotomaHelpers
+import DataBUS.neotomaHelpers
 
 from .valid_agent import valid_agent
 from .valid_units import valid_units

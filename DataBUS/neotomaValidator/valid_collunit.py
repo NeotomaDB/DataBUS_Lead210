@@ -1,5 +1,5 @@
 import itertools
-from neotomaHelpers.pull_params import pull_params
+from DataBUS.neotomaHelpers.pull_params import pull_params
 
 def valid_collunit(cur, yml_dict, csv_file):
     """

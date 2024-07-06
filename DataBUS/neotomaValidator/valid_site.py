@@ -1,5 +1,5 @@
-from neotomaHelpers.pull_params import pull_params
-import neotomaHelpers as nh
+from DataBUS.neotomaHelpers.pull_params import pull_params
+import DataBUS.neotomaHelpers as nh
 
 def valid_site(cur, yml_dict, csv_file):
     """

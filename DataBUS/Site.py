@@ -1,4 +1,4 @@
-from Geog import Geog
+from .Geog import Geog
 
 class Site:
     description = "Site object in Neotoma"

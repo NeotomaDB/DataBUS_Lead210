@@ -1,5 +1,5 @@
-from neotomaHelpers.pull_params import pull_params
-from neotomaHelpers.retrieve_dict import retrieve_dict
+from DataBUS.neotomaHelpers.pull_params import pull_params
+from DataBUS.neotomaHelpers.retrieve_dict import retrieve_dict
 def valid_dataset(cur, yml_dict, csv_file):
     """_Validating Datasets_"""
     response = {'valid': [],
