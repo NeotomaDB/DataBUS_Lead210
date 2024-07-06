@@ -1,5 +1,6 @@
 from DataBUS.neotomaHelpers.pull_params import pull_params
 import DataBUS.neotomaHelpers as nh
+from DataBUS import Geog, WrongCoordinates, Site, SiteResponse
 
 def valid_site(cur, yml_dict, csv_file):
     """
@@ -28,93 +29,114 @@ def valid_site(cur, yml_dict, csv_file):
                 'matched': {'namematch': False, 'distmatch': False},
                 'doublematch':False,
                 'message': []}
-
-    params = ["sitename", "altitude", "area", "sitedescription", "notes", "geog", "siteid"]
+    response = SiteResponse()
+    params = ["siteid", "sitename", "altitude", "area", "sitedescription", "notes", "geog"]
     inputs = pull_params(params, yml_dict, csv_file, 'ndb.sites')
-    inputs['siteid'] = None if inputs['siteid'][0] == 'NA' else int(inputs['siteid'][0])
+    inputs = nh.clean_inputs(inputs)
     overwrite = nh.pull_overwrite(params, yml_dict, 'ndb.collectionunits')
-    coords = inputs['geog']
 
-    if len(coords) == 2 and -90 <= coords[0] <= 90 and -180 <= coords[1] <= 180:
-        response['valid'].append(True)
-    else:
-        coord_error = 'multiple' if len(coords) > 2 else 'no'
-        response['message'].append(f'✗ There are {coord_error} columns mapped to coordinates in your template.')
-        response['valid'].append(False)
+    try:
+        geog = Geog((inputs['geog'][0], inputs['geog'][1]))
+        response.message.append(f"? This set is expected to be "
+                                   f"in the {geog.hemisphere} hemisphere.")
+    except TypeError as e:
+        response.valid.append(False)
+        response.message.append(e)
+        geog = None
+    except WrongCoordinates as e:
+        response.valid.append(False)
+        response.message.append(e)
+        geog = None
 
-    sitename = inputs['sitename']
-    if len(sitename) == 1:
-        response['valid'].append(True)
-    else:
-        sitename_error = 'multiple' if len(sitename) > 1 else 'no'
-        response['message'].append(f'✗ There are {sitename_error} columns mapped to sitenames in your template.')
-        response['valid'].append(False)
-
-    coord_dict = {'lat': coords[0], 'long': coords[1]}
-    response['hemisphere'] = ('N' if coord_dict['lat'] >= 0 else 'S') + ('E' if coord_dict['long'] >= 0 else 'W')
-    response['message'].append(f"? This set is expected to be in the {response['hemisphere']} hemisphere.")
+    try:
+        site = Site(siteid=inputs['siteid'],
+                    sitename = inputs['sitename'],
+                    altitude = inputs['altitude'],
+                    area = inputs['area'],
+                    sitedescription= inputs['sitedescription'],
+                    notes = inputs['notes'],
+                    geog = geog)
+    except ValueError as e:
+        response.valid.append(False)
+        response.message.append(e)
+        site = Site()
+    except TypeError as e:
+        response.valid.append(False)
+        response.message.append(e)
+        site = Site()
+    except Exception as e:
+        response.valid.append(False)
+        response.message.append(e)
+        site = Site()
 
     # When not given a SiteID
-    if inputs['siteid'] is None:
-        close_site = """
-            SELECT st.*,
-                ST_SetSRID(st.geog::geometry, 4326)::geography <-> ST_SetSRID(ST_Point(%(long)s, %(lat)s), 4326)::geography AS dist
-            FROM   ndb.sites AS st
-            WHERE ST_SetSRID(st.geog::geometry, 4326)::geography <-> ST_SetSRID(ST_Point(%(long)s, %(lat)s), 4326)::geography < 10000
-            ORDER BY dist;"""
-        cur.execute(close_site, coord_dict)
-        close_sites = cur.fetchall()
+    site.siteid = None
+    if site.siteid is None:
+        close_sites = site.find_close_sites(cur)
         if close_sites:
-            response['message'].append('?  One or more sites exist close to the requested site.')
+            response.message.append('?  One or more sites exist close to the requested site.')
             for site_data in close_sites:
-                site = {'id': str(site_data[0]), 'name': site_data[1], 'coordlo': str(site_data[2]), 'coordla': str(site_data[3]), 'distance (m)': round(site_data[13], 0)}
-                response['sitelist'].append(site)
-            sitenames_list = [site['name'] for site in response['sitelist']]
-            response['matched']['namematch'] = any(sitename in sitenames_list for sitename in sitename)
-            response['matched']['distmatch'] = any(site['distance (m)'] == 0 for site in response['sitelist'])
-            response['doublematch'] = response['matched']['namematch'] and response['matched']['distmatch']
-            match_status = 'matches' if response['doublematch'] else 'differs'
-            response['message'].append(f'? Site name {match_status}, but locations differ.')
+                new_site = Site(siteid = site_data[0],
+                                sitename = site_data[1],
+                                geog = Geog((site_data[3], site_data[2])))
+                new_site.distance = round(site_data[13], 0)
+                response.closesites.append(new_site)
+            sitenames_list = [site.sitename for site in response.closesites]
+            response.matched['namematch'] = any(name in sitenames_list for name in site.sitename)
+            response.matched['distmatch'] = any(site.distance == 0 for site in response.closesites)
+            response.doublematched = response.matched['namematch'] and response.matched['distmatch']
+            match_status = 'matches' if response.doublematched else 'differs'
+            response.message.append(f'? Site name {match_status}, but locations differ.')
         else:
-            response['valid'].append(True)
-            response['sitelist'] = [{'id': None, 'name': None, 'coordlo': None, 'coordla': None, 'distance (m)': None}]
-            response['message'].append('✔  There are no sites close to the proposed site.')
+            response.valid.append(True)
+            response.sitelist = [Site()]
+            response.message.append('✔  There are no sites close to the proposed site.')
     else:
-        response['message'].append("Verifying if the site exists already in neotoma with the same siteID")
+        response.message.append("Verifying if the site exists already in neotoma with the same siteID")
         site_query = """SELECT * from ndb.sites where siteid = %(siteid)s"""
-        cur.execute(site_query, {'siteid': inputs['siteid']})
+        cur.execute(site_query, {'siteid': site.siteid})
         site_info = cur.fetchall()
         if not site_info:
-            response['valid'].append(False)
-            response['message'].append(f"? Site ID {inputs['siteid']} is not currently associated to a site in Neotoma.")
+            response.valid.append(False)
+            response.message.append(f"? Site ID {site.siteid} is not currently associated to a site in Neotoma.")
         else:
-            response['message'].append("✔  Site ID found in Neotoma:")
+            response.message.append("✔  Site ID found in Neotoma:")
             for site_data in site_info:
-                site = {'id': str(site_data[0]), 'name': site_data[1], 'coordlo': str(site_data[2]), 'coordla': str(site_data[3])}
-                response['sitelist'].append(site)
-                name_match = site['name'] == inputs['sitename'][0]
-                coord_match = float(site['coordlo']) == coords[1] and float(site['coordla']) == coords[0]
-                response['matched']['namematch'] = name_match
-                response['matched']['distmatch'] = coord_match
-                response['valid'].append(name_match)
-                response['message'].append(site)
+                new_site = Site(siteid = site_data[0],
+                            sitename = site_data[1],
+                            geog = Geog((site_data[3],site_data[2])))
+                response.sitelist.append(site)
+                name_match = site.sitename[0] == new_site.sitename
+                coord_match = site.geog == new_site.geog
+                response.matched['namematch'] = name_match
+                response.matched['distmatch'] = coord_match
+                response.valid.append(name_match)
+                response.message.append(new_site)
                 if not name_match:
-                    response['message'].append(f"✗ The sitenames do not match. Current sitename in Neotoma: {site['name']}. Proposed name: {inputs['sitename'][0]}.")
+                    response.message.append(f"✗ The sitenames do not match. Current sitename in Neotoma: {site['name']}. Proposed name: {inputs['sitename'][0]}.")
                 else:
-                    response['message'].append("✔  Names match")
+                    response.message.append("✔  Names match")
                 if not coord_match:
-                    # add that the point is not further than 10 km
+                    close_sites = site.find_close_sites(cur, limit = 3)
+                    for site_data in close_sites:
+                        close_site = Site(siteid = site_data[0],
+                                        sitename = site_data[1],
+                                        geog = Geog((site_data[3], site_data[2])))
+                        new_site.distance = round(site_data[13], 0)
+                        response.closesites.append(close_site)
                     if not overwrite['geog']:
-                        response['message'].append("? Coordinates do not match. Neotoma coordinates will stay in place.")
-                        response['message'].append(f"? Current latitude in Neotoma: {site['coordla']}. Proposed latitude: {coords[0]}.")
-                        response['message'].append(f"? Current longitude in Neotoma: {site['coordlo']}. Proposed longitude: {coords[1]}.")
+                        response.message.append(f"? Coordinates do not match."
+                                                   f"Neotoma coordinates will stay in place. \n"
+                                                   f"Current coords in Neotoma: {new_site.geog}. \n" 
+                                                   f"Proposed coords: {site.geog}.")
                     else:
-                        response['message'].append("? Coordinates do not match. Proposed coordinates will stay in place.")
-                        response['message'].append(f"? Current latitude in Neotoma: {site['coordla']}. Proposed latitude: {coords[0]}.")
-                        response['message'].append(f"? Current longitude in Neotoma: {site['coordlo']}. Proposed longitude: {coords[1]}.")
+                        response.message.append("? Coordinates do not match. "
+                                                   f"Proposed coordinates will stay in place. \n"
+                                                   f"Current coords in Neotoma: {new_site.geog}. \n" 
+                                                   f"Proposed coords: {site.geog}.")
                 else:
-                    response['message'].append("✔  Coordinates match")
+                    response.message.append("✔  Coordinates match")
 
-    response['valid'] = all(response['valid'])
-                
+    response.validAll = all(response.valid)
+    print(response)
     return response

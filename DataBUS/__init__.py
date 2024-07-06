@@ -6,5 +6,6 @@ import itertools
 import argparse
 import os
 
-from .Geog import Geog
+from .Response import Response, SiteResponse
+from .Geog import Geog, WrongCoordinates
 from .Site import Site

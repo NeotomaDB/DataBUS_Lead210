@@ -1,17 +1,19 @@
-from .Geog import Geog
+from .Geog import Geog, WrongCoordinates
 
 class Site:
     description = "Site object in Neotoma"
-    def __init__(self, siteid, sitename, altitude,
-                 area, sitedescription, notes, geog):
-        if not isinstance(siteid, (int, None)):
-            raise TypeError("Site ID must be an integer or None.")
+    def __init__(self, siteid = None, sitename = 'None', altitude = None,
+                 area = None, sitedescription = None, notes = None, geog = None):
+        if not(isinstance(siteid, int) or siteid is None):
+            raise TypeError("✗ Site ID must be an integer or None.")
         self.siteid = siteid
 
         if sitename is None:
-            raise ValueError(f"Sitename must be given.")
-        if not isinstance(sitename, str):
-            raise TypeError(f"Sitename must be a string.")
+            raise ValueError(f"✗ Sitename must be given.")
+        if not isinstance(sitename, (list, str)):
+            raise TypeError(f"✗ Sitename must be a string or list of strings.")
+        if isinstance(sitename, list) and len(sitename) != 1:
+            raise ValueError("✗ There are multiple sitenames in your template.")
         self.sitename = sitename
 
         if not (isinstance(altitude, (int,float)) or altitude is None):
@@ -34,8 +36,16 @@ class Site:
             raise TypeError("geog must be Geog or None.")
         self.geog = geog
 
+        self.distance = None 
+
     def __str__(self):
-        return(f"{self.sitename} is located in {self.ew, self.ns}")
+        statement = (f"Name: {self.sitename:<15}, "
+               f"ID: {self.siteid:<8}, "
+               f"Geog: {self.geog}")
+        if self.distance is None:
+            return statement
+        else:
+            return statement + f", Distance: {self.distance:<10}" 
     
     def __eq__(self, other):
         return (self.siteid == other.siteid and
@@ -89,3 +99,15 @@ class Site:
         cur.execute(site_query, inputs)
         self.siteid = cur.fetchone()[0]
         return self.siteid
+    
+    def find_close_sites(self, cur, dist = 10000, limit = 10):
+        close_site = """
+            SELECT st.*,
+                ST_SetSRID(st.geog::geometry, 4326)::geography <-> ST_SetSRID(ST_Point(%(long)s, %(lat)s), 4326)::geography AS dist
+            FROM   ndb.sites AS st
+            WHERE ST_SetSRID(st.geog::geometry, 4326)::geography <-> ST_SetSRID(ST_Point(%(long)s, %(lat)s), 4326)::geography < %(dist)s
+            ORDER BY dist
+            LIMIT %(lim)s;"""
+        cur.execute(close_site, {'long': self.geog.longitude, 'lat':self.geog.latitude, 'dist': dist, 'lim': limit})
+        close_sites = cur.fetchall()
+        return close_sites
