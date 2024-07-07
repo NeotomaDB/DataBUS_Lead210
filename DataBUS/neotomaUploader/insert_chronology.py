@@ -1,18 +1,18 @@
 import datetime
 import logging
 import datetime
-import neotomaHelpers as nh
-with open('./sqlHelpers/chron_query.sql', 'r') as sql_file:
+import DataBUS.neotomaHelpers as nh
+with open('./DataBUS/sqlHelpers/chron_query.sql', 'r') as sql_file:
     addChron = sql_file.read()
 
-def insert_chronology(cur, yml_dict, csv_template, uploader):
+def insert_chronology(cur, yml_dict, csv_file, uploader):
     """
     Inserts chronology data into Neotoma.
 
     Args:
         cur (cursor object): Database cursor to execute SQL queries.
         yml_dict (dict): Dictionary containing YAML data.
-        csv_template (str): File path to the CSV template.
+        csv_file (str): File path to the CSV template.
         uploader (dict): Dictionary containing uploader details.
 
     Returns:
@@ -26,10 +26,10 @@ def insert_chronology(cur, yml_dict, csv_template, uploader):
     get_cont = """SELECT contactid FROM ndb.contacts WHERE %(contactname)s = contactname;"""    
     
     params = ["contactid", "agemodel", "notes"]
-    inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.chronologies')
+    inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.chronologies')
 
     params2 = ['age']
-    inputs_age = nh.pull_params(params2, yml_dict, csv_template, 'ndb.sampleages')
+    inputs_age = nh.pull_params(params2, yml_dict, csv_file, 'ndb.sampleages')
 
     inputs_age['age'] = [float(value) if value != 'NA' else None for value in inputs_age['age']]
     agetype = list(set(inputs_age['unitcolumn']))

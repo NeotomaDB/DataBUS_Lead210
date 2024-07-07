@@ -1,5 +1,5 @@
 import logging
-import neotomaHelpers as nh 
+import DataBUS.neotomaHelpers as nh 
 
 def insert_dataset_database(cur, yml_dict, uploader):
     """

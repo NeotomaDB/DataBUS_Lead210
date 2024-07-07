@@ -1,16 +1,16 @@
 import logging
-import neotomaHelpers as nh
-with open('./sqlHelpers/chron_control_query.sql', 'r') as sql_file:
+import DataBUS.neotomaHelpers as nh
+with open('./DataBUS/sqlHelpers/chron_control_query.sql', 'r') as sql_file:
     addcontrol = sql_file.read()
 
-def insert_chron_control(cur, yml_dict, csv_template, uploader):
+def insert_chron_control(cur, yml_dict, csv_file, uploader):
     """
     Inserts chronological control data into a database.
 
     Args:
         cur (cursor object): Database cursor to execute SQL queries.
         yml_dict (dict): Dictionary containing YAML data.
-        csv_template (str): File path to the CSV template.
+        csv_file (str): File path to the CSV template.
         uploader (dict): Dictionary containing uploader details.
 
     Returns:
@@ -24,7 +24,7 @@ def insert_chron_control(cur, yml_dict, csv_template, uploader):
     response = {'chron_control_units': list(), 'valid': list(), 'message': list()}
     
     params = ["depth", "thickness", 'notes',]
-    inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.chroncontrols')
+    inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.chroncontrols')
     inputs = {k: (v if v else None) for k, v in inputs.items()}
     if isinstance(inputs['notes'] ,list):
         inputs['notes'] = [None if x is None else x for x in inputs['notes']]
@@ -33,7 +33,7 @@ def insert_chron_control(cur, yml_dict, csv_template, uploader):
 
     # In template.xls I have ndb.geochroncontrols.age
     params_age = ['age']
-    inputs_age = nh.pull_params(params_age, yml_dict, csv_template, 'ndb.sampleages')
+    inputs_age = nh.pull_params(params_age, yml_dict, csv_file, 'ndb.sampleages')
 
     inputs_age['age'] = [float(value) if value != 'NA' else None for value in inputs_age['age']]
     inputs_age['uncertainty'] = [float(value) if value != 'NA' else None for value in inputs_age['uncertainty']]

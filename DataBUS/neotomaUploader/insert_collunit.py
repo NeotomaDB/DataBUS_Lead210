@@ -1,18 +1,18 @@
-import neotomaHelpers as nh
-with open('./sqlHelpers/collunit_query.sql', 'r') as sql_file:
+import DataBUS.neotomaHelpers as nh
+with open('./DataBUS/sqlHelpers/collunit_query.sql', 'r') as sql_file:
     collunit_query = sql_file.read()
-with open('./sqlHelpers/upsert_collunit.sql', 'r') as sql_file:
+with open('./DataBUS/sqlHelpers/upsert_collunit.sql', 'r') as sql_file:
     upsert_query = sql_file.read()
 
 
-def insert_collunit(cur, yml_dict, csv_template, uploader):
+def insert_collunit(cur, yml_dict, csv_file, uploader):
     """_Insert a new collection unit to a site_
 
     Args:
         cur (_psycopg2.extensions.cursor_): _A cursor pointing to the Neotoma 
             Paleoecology Database._
         yml_dict (_dict_): _A `dict` returned by the YAML template._
-        csv_template (_dict_): _The csv file with the required data to be uploaded._
+        csv_file (_dict_): _The csv file with the required data to be uploaded._
         uploader (_dict_): A `dict` object that contains critical information about the
           object uploaded so far.
 
@@ -33,7 +33,7 @@ def insert_collunit(cur, yml_dict, csv_template, uploader):
     
     # To clarify: handle and corecode seem to be the same in the template. I am guessing handle is when it has already been given; core is the element how a handle is created?
     # Is it safe to take the first 10 elements of a core to name the handle?
-    inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.collectionunits')
+    inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.collectionunits')
     inputs = dict(map(lambda item: (item[0], None if all([i is None for i in item[1]]) else item[1]),
                       inputs.items()))
     overwrite = nh.pull_overwrite(params, yml_dict, 'ndb.collectionunits')

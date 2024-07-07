@@ -1,16 +1,16 @@
 import logging
-import neotomaHelpers as nh
-with open('./sqlHelpers/dataset_query.sql', 'r') as sql_file:
+import DataBUS.neotomaHelpers as nh
+with open('./DataBUS/sqlHelpers/dataset_query.sql', 'r') as sql_file:
     dataset_query = sql_file.read()
 
-def insert_dataset(cur, yml_dict, csv_template, uploader):
+def insert_dataset(cur, yml_dict, csv_file, uploader):
     """
     Inserts a dataset associated with a collection unit into a database.
 
     Args:
         cur (cursor object): Database cursor to execute SQL queries.
         yml_dict (dict): Dictionary containing YAML data.
-        csv_template (str): File path to the CSV template.
+        csv_file (str): File path to the CSV template.
         uploader (dict): Dictionary containing uploader details.
 
     Returns:
@@ -21,7 +21,7 @@ def insert_dataset(cur, yml_dict, csv_template, uploader):
     response = {'datasetid': None, 'valid': list(), 'message': list()}
 
     #params = ['datasetname', 'datasettypeid']
-    #inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.datasets')
+    #inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.datasets')
     #inputs = dict(map(lambda item: (item[0], None if all([i is None for i in item[1]]) else item[1]),
     #                  inputs.items()))
     inputs = dict()

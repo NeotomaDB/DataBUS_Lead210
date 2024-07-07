@@ -1,17 +1,17 @@
 import logging
-import neotomaHelpers as nh
+import DataBUS.neotomaHelpers as nh
 import datetime
-with open('./sqlHelpers/sample_query.sql', 'r') as sql_file:
+with open('./DataBUS/sqlHelpers/sample_query.sql', 'r') as sql_file:
     sample_query = sql_file.read()
 
-def insert_sample(cur, yml_dict, csv_template, uploader):
+def insert_sample(cur, yml_dict, csv_file, uploader):
     """
     Inserts sample data into Neotoma.
 
     Args:
         cur (cursor object): Database cursor to execute SQL queries.
         yml_dict (dict): Dictionary containing YAML data.
-        csv_template (str): File path to the CSV template.
+        csv_file (str): File path to the CSV template.
         uploader (dict): Dictionary containing uploader details.
 
     Returns:
@@ -22,7 +22,7 @@ def insert_sample(cur, yml_dict, csv_template, uploader):
     response = {'samples': list(), 'valid': list(), 'message': list()}
     params = ['sampledate', 'analysisdate', 'prepmethod', 
               'notes', 'taxonname', 'samplename']       
-    inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.samples')
+    inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.samples')
     inputs = dict(map(lambda item: (item[0], None if all([i is None for i in item[1]]) else item[1]),
                       inputs.items()))
     inputs['labnumber'] = nh.retrieve_dict(yml_dict, 'ndb.samples.labnumber')

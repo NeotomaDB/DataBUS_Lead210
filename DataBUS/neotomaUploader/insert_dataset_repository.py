@@ -1,15 +1,15 @@
-import neotomaHelpers as nh
+import DataBUS.neotomaHelpers as nh
 import psycopg2
 from datetime import datetime
-with open('./sqlHelpers/repository_query.sql', 'r') as sql_file:
+with open('./DataBUS/sqlHelpers/repository_query.sql', 'r') as sql_file:
     repo_query = sql_file.read()
 
-def insert_dataset_repository(cur, yml_dict, csv_template, uploader):
+def insert_dataset_repository(cur, yml_dict, csv_file, uploader):
     """
     """
     response = {'repoid': None, 'valid': list(), 'message': list()}
     params = ['acronym', 'repo', 'recdatecreated', 'recdatemodified', 'notes']
-    inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.repository')
+    inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.repository')
     inputs = dict(map(lambda item: (item[0], None if all([i is None for i in item[1]]) else item[1]),
                       inputs.items()))
     for i in inputs:

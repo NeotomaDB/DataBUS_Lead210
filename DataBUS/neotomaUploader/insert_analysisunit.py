@@ -1,16 +1,16 @@
 import logging
-import neotomaHelpers as nh
-with open('./sqlHelpers/aunit_query.sql', 'r') as sql_file:
+import DataBUS.neotomaHelpers as nh
+with open('./DataBUS/sqlHelpers/aunit_query.sql', 'r') as sql_file:
     aunit_query = sql_file.read()
 
-def insert_analysisunit(cur, yml_dict, csv_template, uploader):
+def insert_analysisunit(cur, yml_dict, csv_file, uploader):
     """_Inserting analysis units_
 
     Args:
         cur (_psycopg2.extensions.cursor_): _A cursor pointing to the Neotoma 
             Paleoecology Database._
         yml_dict (_dict_): _A `dict` returned by the YAML template._
-        csv_template (_dict_): _The csv file with the required data to be uploaded._
+        csv_file (_dict_): _The csv file with the required data to be uploaded._
         uploader (_dict_): A `dict` object that contains critical information about the
           object uploaded so far.
 
@@ -20,7 +20,7 @@ def insert_analysisunit(cur, yml_dict, csv_template, uploader):
     response = {'anunits': [], 'valid': [], 'message': []}
 
     params = ["analysisunitname", "depth", "thickness", "faciesid", "mixed", "igsn", "notes"]
-    inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.analysisunits')
+    inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.analysisunits')
     inputs = {k: (v if v else None) for k, v in inputs.items()}
 
     kv = {'mixed': False, 'faciesid': None, 'igsn': None, 'notes': None}

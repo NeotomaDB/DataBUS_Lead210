@@ -1,142 +1,97 @@
-import numpy as np
-import neotomaHelpers as nh
-with open('./sqlHelpers/site_query.sql', 'r') as sql_file:
-    site_query = sql_file.read()
-with open('./sqlHelpers/upsert_site.sql', 'r') as sql_file:
+import DataBUS.neotomaHelpers as nh
+from DataBUS import Geog, WrongCoordinates, Site, SiteResponse
+with open('./DataBUS/sqlHelpers/upsert_site.sql', 'r') as sql_file:
     upsert_query = sql_file.read()
+ 
+def insert_site(cur, yml_dict, csv_file):
+    """Insert or update a site in the Neotoma Paleoecology Database.
+    
+    This function inserts a new site or updates an existing site in the Neotoma
+    Paleoecology Database based on the given YAML dictionary and CSV file. It handles
+    geolocation validation, attribute cleaning, and logging of the operation's
+    success or failure.
 
-def insert_site(cur, yml_dict, csv_template):
-    """_Insert a site to Neotoma_
-    Inserts site data into Neotoma.
     Args:
-        cur (_psycopg2.extensions.cursor_): _A cursor pointing to the Neotoma 
-            Paleoecology Database._
-        yml_dict (_dict_): _A `dict` returned by the YAML template._
-        csv_template (_dict_): _The csv file with the required data to be uploaded._
+        cur (psycopg2.extensions.cursor): A cursor pointing to the Neotoma 
+            Paleoecology Database.
+        yml_dict (dict): A dictionary returned by the YAML template.
+        csv_file (dict): The CSV file with the required data to be uploaded.
 
     Returns:
-        response (dict): A dictionary containing information about the inserted site.
-            'siteid' (int): IDs for the inserted site.
-            'valid' (bool): Indicates if insertions were successful.
+        SiteResponse: An object containing information about the inserted or updated site.
+            - siteid (int): ID of the inserted or updated site.
+            - valid (bool): Indicates if insertions were successful.
+            - message (list): List of messages describing the operations performed.
+            - sitelist (list): List of site objects involved in the operation.
     """
-    response = {'s_id': False, 'siteid': np.nan, 'valid': [], 'message': [], 'sitelist': []}
+    response = SiteResponse()
     params = ["siteid", "sitename", "altitude", "area", "sitedescription", "notes", "geog"]
-    inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.sites')
-    inputs = dict(map(lambda item: (item[0], None if all([i is None for i in item[1]]) else item[1]),
-                      inputs.items()))
+    inputs = nh.clean_inputs(nh.pull_params(params, yml_dict, csv_file, 'ndb.sites'))
     overwrite = nh.pull_overwrite(params, yml_dict, 'ndb.sites')
-    
+
     try:
-        # Verify that site name and geometry are present in CSV
-        assert all(inputs.get(key) is not None and inputs[key] != [] 
-                   for key in ['sitename', 'geog'])
-    except AssertionError:
-        response['message'].append("✗ The template must contain a sitename and coordinates.", exc_info=True)
-        response['valid'].append(False)  
-    nh.process_inputs(inputs, response, 'sitename', ['altitude','area','description','notes'])  
+        geog = Geog((inputs['geog'][0], inputs['geog'][1]))
+        response.message.append(f"? This set is expected to be "
+                                   f"in the {geog.hemisphere} hemisphere.")
+    except (TypeError, WrongCoordinates) as e:
+        response.valid = False
+        response.message.append(str(e))
+        geog = None
 
-    inputs['coordlo'] = float(inputs['geog'][1])
-    inputs['coordla'] = float(inputs['geog'][0])
-    if inputs['siteid'] is not None and inputs['siteid'] != ["NA"]:
-        response['s_id'] = True
-        assert len(inputs['siteid']) == 1, "multiple siteIDs given"
-        response['message'].append(f"Site ID has been given: {inputs['siteid'][0]}")
-    else:
-        response['s_id'] = False
-        response['message'].append(f"A new site ID will be generated")
-
-    if response['s_id']:
-        inputs['siteid'] = int(inputs['siteid'][0])
-        response['siteid'] = int(inputs['siteid'])
+    try:
+        site = Site(siteid=inputs['siteid'],
+                    sitename = inputs['sitename'],
+                    altitude = inputs['altitude'],
+                    area = inputs['area'],
+                    sitedescription= inputs['sitedescription'],
+                    notes = inputs['notes'],
+                    geog = geog)
+        response.valid.append(True)
+    except (ValueError, TypeError, Exception) as e:
+        response.valid.append(False)
+        response.message.append(e)
+        site = Site()
+    
+    if site.siteid is not None:
+        response.message.append(f"Site ID has been given: {site.siteid}")
+        response.siteid = site.siteid
         cur.execute("""SELECT * from ndb.sites where siteid = %(siteid)s""", 
-                    {'siteid': response['siteid']})
+                    {'siteid': response.siteid})
         site_info = cur.fetchall()
         if len(site_info) == 1:
             site_info = site_info[0]
-            response['message'].append(f"✔  Site ID {response['siteid']} found in Neotoma.")
-            site = {'siteid': int(site_info[0]), 'sitename': site_info[1], 
-                    'coordlo': float(site_info[2]), 'coordla': float(site_info[3]),
-                    'altitude': None, 'area': None, 'sitedescription': None, 'notes': None}
+            response.message.append(f"✔  Site ID {response.siteid} found in Neotoma.")
+            found_site = Site(siteid = int(site_info[0]),
+                              sitename = site_info[1], 
+                              geog=Geog((float(site_info[3]),float(site_info[2]))))
             #response['sitelist'].append(site)
-            matched = dict()
-            updated_site = dict()
-            for element in site:
-                if element == 'siteid':
-                    updated_site[element] = site[element]
-                elif site[element] != inputs[element]:
-                    matched[element] = False
-                    response['message'].append(f"✗ The {element}s do not match.\nOverwrite for {element} is set to {overwrite[element]}")
-                    if overwrite[element] == True:
-                        updated_site[element] = inputs[element]
-                        response['message'].append(f"Updated {element} to: {inputs[element]}.")        
-                    else:
-                        updated_site[element] = None
-                        response['message'].append(f"? Current {element} in Neotoma will not be updated")                               
-                else:
-                    updated_site[element] = None
-                    matched[element] = True
-                    response['valid'].append(True)
-                    response['message'].append(f"✔  {element}s match.")
-            matched = all(value for value in matched.values())
-
-            response['sitelist'].append({'site': site, 'updated_params': updated_site})            
-            updated_site['ew'] = updated_site.pop('coordlo')
-            updated_site['ns'] = updated_site.pop('coordla')
+            updated_site = site.update_site(found_site, overwrite, response)
+            updated_site.siteid = found_site.siteid
+            response.sitelist.append({'original site': f"{site}", 
+                                      'updated site': f"{updated_site}"})
             cur.execute(upsert_query) # Defines upsert_site SQL function
-            up_query =  """SELECT upsert_site(_siteid := %(siteid)s,
-                                              _sitename := %(sitename)s,
-                                              _altitude := %(altitude)s,
-                                              _area := %(area)s,
-                                              _descript := %(sitedescription)s,
-                                              _notes := %(notes)s,
-                                              _east := %(ew)s,
-                                              _north:= %(ns)s)
-                                              """
-            up_inputs = {'siteid': int(updated_site['siteid']),
-                         'sitename': str(updated_site['sitename']),
-                         'altitude': None if updated_site['altitude'] is None else int(updated_site['altitude']),
-                         'area': None,
-                         'sitedescription': str(updated_site['sitedescription']),
-                         'notes': str(updated_site['notes']),
-                         'ew': None if updated_site['ew'] is None else float(updated_site['ew']),
-                         'ns':  None if updated_site['ns'] is None else float(updated_site['ns'])}  
-            cur.execute(up_query, up_inputs)
-            response['siteid'] = cur.fetchone()[0]
-
+            response.siteid = updated_site.upsert_to_db(cur)
+            response.valid.append(True)
         elif len(site_info) == 0:
             if overwrite['sitename'] == True:
-                response['valid'].append(True)
-                response['message'].append(f"✔  Overwrite is set to True. Site ID {response['siteid']} is not currently associated to a site in Neotoma. New Site ID will be given.")
+                response.valid.append(True)
+                response.message.append(f"✔  Overwrite is set to True. Site ID {response.siteid} is not currently associated to a site in Neotoma. New Site ID will be given.")
             else:
-                response['valid'].append(False)
-                response['message'].append(f"✗  Overwrite is set to False. Site ID {response['siteid']} is not currently associated to a site in Neotoma.")
-            cur.execute(site_query, inputs)
-            response['siteid'] = cur.fetchone()[0]
-            site = {'id': response['siteid'], 'name': inputs['sitename'], 'coordlo': inputs['coordlo'], 'coordla': inputs['coordla']}
-            response['sitelist'].append({'temporary site': site})
-            response['message'].append(f"Continuing process with temporary Site ID {response['siteid']}.\nRevise information or create new site (remove siteIDs from CSV)")
+                response.valid.append(False)
+                response.message.append(f"✗  Overwrite is set to False. Site ID {response.siteid} is not currently associated to a site in Neotoma.")
+            response.siteid = site.insert_to_db(cur)
     else:
+        response.message.append(f"A new site ID will be generated")
         try:
-            cur.execute(site_query,
-                        inputs)
-            response['siteid'] = cur.fetchone()[0]
-            inputs['siteid'] = response['siteid']
-            response['sitelist'].append(inputs)
-            response['valid'].append(True)
-            response['message'].append(f"✔ Site inserted {response['siteid']}")
-
+            response.siteid = site.insert_to_db(cur)
+            response.sitelist.append(site)
+            response.valid.append(True)
+            response.message.append(f"✔ Site inserted {response['siteid']}")
         except Exception as e:
-            response['message'].append(f"✗ Site Data is not correct. Error message: {e}")
-            inputs = {"sitename": 'Placeholder', 
-                      "altitude": None,
-                      "area": None,
-                      "sitedescription": None, 
-                      "notes": None, 
-                      "geog": None}
-            cur.execute(site_query, inputs)
-            response['siteid'] = cur.fetchone()[0]
-            response['message'].append(f"Temporary SiteID {response['siteid']} used.")
-            response['valid'].append(False)
-            response['sitelist'].append(inputs)
-    response['valid'] = all(response['valid'])
+            response.message.append(f"✗ Site Data is not correct. Error message: {e}")
+            temp_site = Site()
+            response.siteid = temp_site.insert_to_db(cur)
+            response.message.append(f"Temporary SiteID {response['siteid']} used.")
+            response.valid.append(False)
+            response.sitelist.append(temp_site)
     return response

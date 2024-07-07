@@ -1,16 +1,16 @@
 import logging
-import neotomaHelpers as nh
-with open('./sqlHelpers/sample_age_query.sql', 'r') as sql_file:
+import DataBUS.neotomaHelpers as nh
+with open('./DataBUS/sqlHelpers/sample_age_query.sql', 'r') as sql_file:
     sample_age_query = sql_file.read()
 
-def insert_sample_age(cur, yml_dict, csv_template, uploader):
+def insert_sample_age(cur, yml_dict, csv_file, uploader):
     """
     Inserts sample age data into a database.
 
     Args:
         cur (cursor object): Database cursor to execute SQL queries.
         yml_dict (dict): Dictionary containing YAML data.
-        csv_template (str): File path to the CSV template.
+        csv_file (str): File path to the CSV template.
         uploader (dict): Dictionary containing uploader details.
 
     Returns:
@@ -21,7 +21,7 @@ def insert_sample_age(cur, yml_dict, csv_template, uploader):
     response = {'sampleAge': list(), 'valid': list(), 'message': list()}
 
     params = ['age']
-    inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.sampleages')
+    inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.sampleages')
 
     inputs['age'] = [float(value) if value != 'NA' else None for value in inputs['age']]
     inputs['uncertainty'] = [float(value) if value != 'NA' else None for value in inputs['uncertainty']]

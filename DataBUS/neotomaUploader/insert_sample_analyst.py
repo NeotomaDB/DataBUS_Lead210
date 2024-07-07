@@ -1,13 +1,13 @@
-import neotomaHelpers as nh
+import DataBUS.neotomaHelpers as nh
 
-def insert_sample_analyst(cur, yml_dict, csv_template, uploader):
+def insert_sample_analyst(cur, yml_dict, csv_file, uploader):
     """
     Inserts sample analyst data into Neotoma
 
     Args:
         cur (cursor object): Database cursor to execute SQL queries.
         yml_dict (dict): Dictionary containing YAML data.
-        csv_template (str): File path to the CSV template.
+        csv_file (str): File path to the CSV template.
         uploader (dict): Dictionary containing uploader details.
 
     Returns:
@@ -17,7 +17,7 @@ def insert_sample_analyst(cur, yml_dict, csv_template, uploader):
     """
     response = {'contids': list(), 'valid': list(), 'message': list()}
     params = ['contactid']
-    inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.sampleanalysts')
+    inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.sampleanalysts')
 
     inputs['contactid'] = list(dict.fromkeys(inputs['contactid']))
     contids = nh.get_contacts(cur, inputs['contactid'])

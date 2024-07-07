@@ -1,14 +1,14 @@
 import logging
-import neotomaHelpers as nh
+import DataBUS.neotomaHelpers as nh
 
-def insert_data_processor(cur, yml_dict, csv_template, uploader):
+def insert_data_processor(cur, yml_dict, csv_file, uploader):
     """
     Inserts data processors into Neotoma
 
     Args:
         cur (cursor object): Database cursor to execute SQL queries.
         yml_dict (dict): Dictionary containing YAML data.
-        csv_template (str): File path to the CSV template.
+        csv_file (str): File path to the CSV template.
         uploader (dict): Dictionary containing uploader details.
 
     Returns:
@@ -18,7 +18,7 @@ def insert_data_processor(cur, yml_dict, csv_template, uploader):
     """
     response = {'processorid': list(), 'valid': list(), 'message': list()}
     params = ['contactid']
-    inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.sampleanalysts')
+    inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.sampleanalysts')
     
     inputs['contactid'] = list(set(inputs['contactid']))
     contids = nh.get_contacts(cur, inputs['contactid'])

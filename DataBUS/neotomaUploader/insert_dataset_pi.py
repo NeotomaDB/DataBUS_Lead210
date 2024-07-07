@@ -1,14 +1,14 @@
 import logging
-import neotomaHelpers as nh
+import DataBUS.neotomaHelpers as nh
 
-def insert_dataset_pi(cur, yml_dict, csv_template, uploader):
+def insert_dataset_pi(cur, yml_dict, csv_file, uploader):
     """
     Inserts dataset principal investigator data into Neotomas.
 
     Args:
         cur (cursor object): Database cursor to execute SQL queries.
         yml_dict (dict): Dictionary containing YAML data.
-        csv_template (str): File path to the CSV template.
+        csv_file (str): File path to the CSV template.
         uploader (dict): Dictionary containing uploader details.
 
     Returns:
@@ -18,7 +18,7 @@ def insert_dataset_pi(cur, yml_dict, csv_template, uploader):
     """
     response = {'dataset_pi_ids': list(), 'valid': list(), 'message': list()}
     params = ['contactid']
-    inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.datasetpis')
+    inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.datasetpis')
 
     # Use this method to preserve order.
     inputs['contactid'] = list(dict.fromkeys(inputs['contactid']))

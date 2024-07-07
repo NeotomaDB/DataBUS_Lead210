@@ -1,13 +1,13 @@
-def insert_geopol(cur, yml_dict, csv_template, uploader):
+def insert_geopol(cur, yml_dict, csv_file, uploader):
     """_Insert a site's geopolitical unit to Neotoma_
 
-    def insert_geopol(cur, yml_dict, csv_template)
+    def insert_geopol(cur, yml_dict, csv_file)
 
     Args:
         cur (_psycopg2.extensions.cursor_): _A cursor pointing to the Neotoma 
             Paleoecology Database._
         yml_dict (_dict_): _A `dict` returned by the YAML template._
-        csv_template (_dict_): _The csv file with the required data to be uploaded._
+        csv_file (_dict_): _The csv file with the required data to be uploaded._
 
     Returns:
         _int_: _The integer value of the newly created siteid from the Neotoma Database._

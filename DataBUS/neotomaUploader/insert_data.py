@@ -1,6 +1,6 @@
-import neotomaHelpers as nh
+import DataBUS.neotomaHelpers as nh
 
-def insert_data(cur, yml_dict, csv_template, uploader):
+def insert_data(cur, yml_dict, csv_file, uploader):
     response = {'data_points': list(), 'valid': list(), 'message': list()}
     data_query = """
                  SELECT ts.insertdata(_sampleid := %(sampleid)s,
@@ -8,10 +8,10 @@ def insert_data(cur, yml_dict, csv_template, uploader):
                                       _value := %(value)s)
                  """
     params = ['value']
-    inputs = nh.pull_params(params, yml_dict, csv_template, 'ndb.data')
+    inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.data')
     
     params2 = ['variableelementid', 'variablecontextid']
-    inputs2 = nh.pull_params(params2, yml_dict, csv_template, 'ndb.data')
+    inputs2 = nh.pull_params(params2, yml_dict, csv_file, 'ndb.data')
     
     inputs2['variableelementid'] = inputs2['variableelementid'] \
         if len(inputs2['variableelementid']) != 0 \
