@@ -4,14 +4,18 @@ class Site:
     description = "Site object in Neotoma"
     def __init__(self, siteid = None, sitename = 'None', altitude = None,
                  area = None, sitedescription = None, notes = None, geog = None):
-        if not(isinstance(siteid, int) or siteid is None):
+        if not(isinstance(siteid, int) or siteid is None or siteid == "NA"):
             raise TypeError("✗ Site ID must be an integer or None.")
+        if siteid == ["NA"] or siteid == "NA":
+            self.siteid = None
         self.siteid = siteid
 
         if sitename is None:
             raise ValueError(f"✗ Sitename must be given.")
         if not isinstance(sitename, (list, str)):
             raise TypeError(f"✗ Sitename must be a string or list of strings.")
+        if isinstance(sitename, str):
+            sitename = [sitename]
         if isinstance(sitename, list) and len(sitename) != 1:
             raise ValueError("✗ There are multiple sitenames in your template.")
         self.sitename = sitename
@@ -39,8 +43,8 @@ class Site:
         self.distance = None 
 
     def __str__(self):
-        statement = (f"Name: {self.sitename:<15}, "
-               f"ID: {self.siteid:<8}, "
+        statement = (f"Name: {self.sitename}, "
+               f"ID: {self.siteid}, "
                f"Geog: {self.geog}")
         if self.distance is None:
             return statement
@@ -60,20 +64,20 @@ class Site:
         site_query = """SELECT ts.insertsite(_sitename := %(sitename)s, 
                         _altitude := %(altitude)s,
                         _area := %(area)s,
-                        _descript := %(description)s,
+                        _descript := %(sitedescription)s,
                         _notes := %(notes)s,
                         _east := %(ew)s,
                         _north := %(ns)s,
                         _west := %(ew)s,
                         _south := %(ns)s)"""
         inputs = {'siteid': self.siteid,
-                  'sitename': self.sitename,
+                  'sitename': self.sitename[0],
                   'altitude': self.altitude,
                   'area': self.area,
                   'sitedescription': self.sitedescription,
                   'notes': self.notes,
-                  'ew': self.geog.lat,
-                  'ns':  self.geog.long}
+                  'ew': self.geog.latitude,
+                  'ns':  self.geog.longitude}
         cur.execute(site_query, inputs)
         self.siteid = cur.fetchone()[0]
         return self.siteid
@@ -89,13 +93,13 @@ class Site:
                                     _north:= %(ns)s)
                                     """
         inputs = {'siteid': self.siteid,
-                'sitename': self.sitename,
+                'sitename': self.sitename[0],
                 'altitude': self.altitude,
                 'area': self.area,
                 'sitedescription': self.sitedescription,
                 'notes': self.notes,
-                'ew': self.geog.lat,
-                'ns': self.geog.long}
+                'ew': self.geog.latitude,
+                'ns': self.geog.longitude}
         cur.execute(site_query, inputs)
         self.siteid = cur.fetchone()[0]
         return self.siteid
@@ -111,3 +115,23 @@ class Site:
         cur.execute(close_site, {'long': self.geog.longitude, 'lat':self.geog.latitude, 'dist': dist, 'lim': limit})
         close_sites = cur.fetchall()
         return close_sites
+ 
+    def update_site(self, other, overwrite, siteresponse=None):
+        if siteresponse is None:
+            siteresponse = type('SiteResponse', (), {})()  # Create a simple object
+            siteresponse.match = {}
+            siteresponse.message = []
+        attributes = ['sitename', 'altitude', 'area', 
+                      'sitedescription', 'notes', 'geog']
+        updated_attributes = []
+        for attr in attributes:
+            if getattr(self, attr) != getattr(other, attr):
+                siteresponse.matched[attr] = False
+                siteresponse.message.append(f"? {attr} does not match. Update set to {overwrite[attr]}")
+            else:
+                siteresponse.valid.append(True)
+                siteresponse.message.append(f"✔  {attr} match.")
+            if overwrite[attr]:
+                setattr(self, attr, getattr(other, attr))
+                updated_attributes.append(attr)
+        return self

@@ -13,7 +13,7 @@ import pandas as pd
 from dotenv import load_dotenv
 import DataBUS.neotomaValidator as nv
 import DataBUS.neotomaHelpers as nh
-from DataBUS.neotomaHelpers.logging_dict import logging_dict
+from DataBUS.neotomaHelpers.logging_dict import logging_dict, logging_response
 
 # Obtain arguments and parse them to handle command line arguments
 args = nh.parse_arguments()
@@ -64,7 +64,7 @@ for filename in filenames:
         validator['sites'] = nv.valid_site(cur = cur,
                                  yml_dict = yml_dict,
                                  csv_file = csv_file)
-        logfile = logging_dict(validator['sites'], logfile, 'sitelist')
+        logfile = logging_response(validator['sites'], logfile)#, 'sitelist')
         
         ########### Geopolitical unit:
         # logfile.append('=== Checking Against Geopolitical Units ===')
