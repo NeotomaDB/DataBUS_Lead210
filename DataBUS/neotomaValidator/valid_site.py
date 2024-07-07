@@ -1,4 +1,3 @@
-from DataBUS.neotomaHelpers.pull_params import pull_params
 import DataBUS.neotomaHelpers as nh
 from DataBUS import Geog, WrongCoordinates, Site, SiteResponse
 
@@ -6,49 +5,47 @@ def valid_site(cur, yml_dict, csv_file):
     """
     Validate if the provided site details correspond to a new and valid site entry.
 
-    This function checks the validity of a site based on its coordinates, name, and hemisphere. It returns a dictionary containing:
-        * `pass`: Boolean indicating if the site validation was successful.
-        * `sitelist`: List of dictionaries for sites that are close to the provided coordinates. Each dictionary includes 'siteid', 'sitename', 'lat', 'long', and 'distance'.
-        * `hemisphere`: String indicating the hemisphere of the site based on its coordinates.
-        * `matched`: Dictionary with details about name and distance matching with nearby sites, including:
-            * `namematch`: Boolean indicating if a nearby site has the same name as the provided site.
-            * `distmatch`: Boolean indicating if a nearby site's coordinates exactly match the provided coordinates.
+    This function checks the validity of a site based on its coordinates, name, and other attributes. 
+    It returns a SiteResponse object containing:
+        - `valid`: Boolean indicating if the site validation was successful.
+        - `sitelist`: List of Site objects that are close to the provided coordinates.
+        - `hemisphere`: String indicating the hemisphere of the site based on its coordinates.
+        - `matched`: Dictionary with details about name and distance matching with nearby sites, including:
+            - `namematch`: Boolean indicating if a nearby site has the same name as the provided site.
+            - `distmatch`: Boolean indicating if a nearby site's coordinates exactly match the provided coordinates.
+        - `message`: List of messages detailing the validation process.
 
     Args:
         cur (_psycopg2.extensions.connection_): Database connection to a Neotoma database.
-        coords (list): Coordinates of the site, expected as [latitude, longitude].
-        hemisphere (list): List of strings representing acceptable hemispheres (e.g., ['NW', 'NE', 'SW', 'SE']).
-        sitename (str): The unique name of the site.
+        yml_dict (dict): Dictionary containing parameters from YAML configuration.
+        csv_file (str): Path to CSV file containing additional parameters.
 
     Returns:
-        dict: Contains the keys `pass`, `sitelist`, `hemisphere`, and `matched` with respective validation results.
+        SiteResponse: Contains the results of the site validation.
     """
-    response = {'valid': [],
-                'hemisphere': '', 
-                'sitelist': [],
-                'matched': {'namematch': False, 'distmatch': False},
-                'doublematch':False,
-                'message': []}
+
     response = SiteResponse()
     params = ["siteid", "sitename", "altitude", "area", "sitedescription", "notes", "geog"]
-    inputs = pull_params(params, yml_dict, csv_file, 'ndb.sites')
-    inputs = nh.clean_inputs(inputs)
-    overwrite = nh.pull_overwrite(params, yml_dict, 'ndb.collectionunits')
+    inputs = nh.clean_inputs(nh.pull_params(params, yml_dict, csv_file, 'ndb.sites'))
+    overwrite = nh.pull_overwrite(params, yml_dict, 'ndb.sites')
+
+    try:
+        assert all(inputs.get(key) is not None and inputs[key] != [] for key in ['sitename', 'geog'])
+    except AssertionError:
+        response.message.append(f"✗ The template must contain a sitename and coordinates.")
+        response.valid.append(False)  
 
     try:
         geog = Geog((inputs['geog'][0], inputs['geog'][1]))
         response.message.append(f"? This set is expected to be "
                                    f"in the {geog.hemisphere} hemisphere.")
-    except TypeError as e:
-        response.valid.append(False)
-        response.message.append(e)
-        geog = None
-    except WrongCoordinates as e:
-        response.valid.append(False)
-        response.message.append(e)
+    except (TypeError, WrongCoordinates) as e:
+        response.valid = False
+        response.message.append(str(e))
         geog = None
 
     try:
+        #site = Site(**inputs, geog=geog)
         site = Site(siteid=inputs['siteid'],
                     sitename = inputs['sitename'],
                     altitude = inputs['altitude'],
@@ -56,21 +53,11 @@ def valid_site(cur, yml_dict, csv_file):
                     sitedescription= inputs['sitedescription'],
                     notes = inputs['notes'],
                     geog = geog)
-    except ValueError as e:
-        response.valid.append(False)
-        response.message.append(e)
-        site = Site()
-    except TypeError as e:
-        response.valid.append(False)
-        response.message.append(e)
-        site = Site()
-    except Exception as e:
+    except (ValueError, TypeError, Exception) as e:
         response.valid.append(False)
         response.message.append(e)
         site = Site()
 
-    # When not given a SiteID
-    site.siteid = None
     if site.siteid is None:
         close_sites = site.find_close_sites(cur)
         if close_sites:
@@ -89,7 +76,7 @@ def valid_site(cur, yml_dict, csv_file):
             response.message.append(f'? Site name {match_status}, but locations differ.')
         else:
             response.valid.append(True)
-            response.sitelist = [Site()]
+            response.closesites = [Site()]
             response.message.append('✔  There are no sites close to the proposed site.')
     else:
         response.message.append("Verifying if the site exists already in neotoma with the same siteID")
@@ -105,24 +92,22 @@ def valid_site(cur, yml_dict, csv_file):
                 new_site = Site(siteid = site_data[0],
                             sitename = site_data[1],
                             geog = Geog((site_data[3],site_data[2])))
-                response.sitelist.append(site)
-                name_match = site.sitename[0] == new_site.sitename
-                coord_match = site.geog == new_site.geog
-                response.matched['namematch'] = name_match
-                response.matched['distmatch'] = coord_match
-                response.valid.append(name_match)
+                response.matched['namematch'] = site.sitename[0] == new_site.sitename
+                response.matched['distmatch'] = site.geog == new_site.geog
+                response.valid.append(response.matched['namematch'])
                 response.message.append(new_site)
-                if not name_match:
+                if not response.matched['namematch']:
                     response.message.append(f"✗ The sitenames do not match. Current sitename in Neotoma: {site['name']}. Proposed name: {inputs['sitename'][0]}.")
                 else:
                     response.message.append("✔  Names match")
-                if not coord_match:
+                if not response.matched['distmatch']:
                     close_sites = site.find_close_sites(cur, limit = 3)
+                    response.message.append(f"? Following sites are close to proposed sites.")
                     for site_data in close_sites:
                         close_site = Site(siteid = site_data[0],
                                         sitename = site_data[1],
                                         geog = Geog((site_data[3], site_data[2])))
-                        new_site.distance = round(site_data[13], 0)
+                        close_site.distance = round(site_data[13], 0)
                         response.closesites.append(close_site)
                     if not overwrite['geog']:
                         response.message.append(f"? Coordinates do not match."
@@ -138,5 +123,4 @@ def valid_site(cur, yml_dict, csv_file):
                     response.message.append("✔  Coordinates match")
 
     response.validAll = all(response.valid)
-    print(response)
     return response
