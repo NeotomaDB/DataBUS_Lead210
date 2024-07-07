@@ -7,7 +7,7 @@ class Site:
         if not(isinstance(siteid, int) or siteid is None or siteid == "NA"):
             raise TypeError("✗ Site ID must be an integer or None.")
         if siteid == ["NA"] or siteid == "NA":
-            self.siteid = None
+            siteid = None
         self.siteid = siteid
 
         if sitename is None:

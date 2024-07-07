@@ -27,3 +27,20 @@ class SiteResponse(Response):
         if self.sitelist:
             response_str += f"\n Sitelist:\n" + "\n".join(str(site) for site in self.sitelist)
         return response_str
+    
+class CUResponse(Response):
+    def __init__(self):
+        super().__init__()
+        #self.matched = {'namematch': False, 'distmatch': False}
+        #self.doublematched = (self.matched['namematch'] and self.matched['distmatch'])
+        self.culist = []
+        self.closecu = []
+        self.cuid = None
+    
+    def __str__(self):
+        response_str = super().__str__()
+        if self.closecu:
+            response_str += "\nClose Sites:\n" + "\n".join(str(site) for site in self.closecu)
+        if self.culist:
+            response_str += f"\n Sitelist:\n" + "\n".join(str(site) for site in self.culist)
+        return response_str

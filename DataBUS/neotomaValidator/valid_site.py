@@ -24,7 +24,7 @@ def valid_site(cur, yml_dict, csv_file):
         SiteResponse: Contains the results of the site validation.
     """
 
-    response = SiteResponse()
+    response = SiteResponse() 
     params = ["siteid", "sitename", "altitude", "area", "sitedescription", "notes", "geog"]
     inputs = nh.clean_inputs(nh.pull_params(params, yml_dict, csv_file, 'ndb.sites'))
     overwrite = nh.pull_overwrite(params, yml_dict, 'ndb.sites')
@@ -92,7 +92,7 @@ def valid_site(cur, yml_dict, csv_file):
                 new_site = Site(siteid = site_data[0],
                             sitename = site_data[1],
                             geog = Geog((site_data[3],site_data[2])))
-                response.matched['namematch'] = site.sitename[0] == new_site.sitename
+                response.matched['namematch'] = site.sitename == new_site.sitename
                 response.matched['distmatch'] = site.geog == new_site.geog
                 response.valid.append(response.matched['namematch'])
                 response.message.append(new_site)
