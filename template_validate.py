@@ -77,7 +77,8 @@ for filename in filenames:
         validator['collunits'] = nv.valid_collunit(cur = cur,
                                                          yml_dict = yml_dict,
                                                          csv_file = csv_file)
-        logfile = logging_dict(validator['collunits'], logfile, 'sitelist')
+        #logfile = logging_dict(validator['collunits'], logfile, 'sitelist')
+        logfile = logging_response(validator['collunits'], logfile)
 
         logfile.append('\n === Checking Against Analysis Units ===')
         validator['analysisunit'] = nv.valid_analysisunit(yml_dict = yml_dict,
