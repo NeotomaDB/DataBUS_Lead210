@@ -1,6 +1,6 @@
 import itertools
 import DataBUS.neotomaHelpers as nh
-from DataBUS import Geog, WrongCoordinates, CollectionUnit, CUResponse
+from DataBUS import Geog, WrongCoordinates, CollectionUnit, CUResponse 
 
 def valid_collunit(cur, yml_dict, csv_file):
     """

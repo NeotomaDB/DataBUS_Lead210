@@ -109,7 +109,7 @@ metadata:
   rowwise: false
   type: date
 - column: Depositional.Env
-  neotoma: ndb.depenvttypes.depenvt
+  neotoma: ndb.collectionunits.depenvtid
   overwrite: true
   required: false
   rowwise: false

@@ -1,29 +1,99 @@
 from .Geog import Geog, WrongCoordinates
-
+with open('./DataBUS/sqlHelpers/collunit_query.sql', 'r') as sql_file:
+    collunit_query = sql_file.read()
 class CollectionUnit:
     description = "Collection Unit object in Neotoma"
-    def __init__(self, handle, core, colltypeid, depenvtid, collunitname, colldate, colldevice,
-                 gpsaltitude, gpserror, waterdepth, substrateid, slopeaspect, slopeangle, 
-                 location, notes, geog):
+    def __init__(self, collectionunitid = None , handle = None, core = None, 
+                 siteid = None, colltypeid = None, depenvtid = None, 
+                 collunitname = None, colldate = None, colldevice = None,
+                 gpsaltitude = None, gpserror = None, waterdepth = None, 
+                 substrateid = None, slopeaspect = None, slopeangle = None, 
+                 location = None, notes = None, geog = None):
+        self.collectionunitid = collectionunitid
         if isinstance(handle, list) and len(handle) > 1:
             raise ValueError('✗ There can only be a single collection unit handle defined.')
         handle = None if handle == ['NA'] else handle
         self.handle = handle
         if self.handle is None:
-            self.handle = core[:10] #if handle is none, use core to defind handle
-        self.colltypeid = colltypeid
-        self.depenvtid = depenvtid
-        self.collunitname = collunitname
-        self.colldate = colldate
-        self.colldevice = colldevice
-        self.gpsaltitude = gpsaltitude
-        self.gpserror = gpserror
-        self.waterdepth = waterdepth
-        self.substrateid = substrateid
-        self.slopeaspect = slopeaspect
-        self.slopeangle = slopeangle
-        self.location = location
-        self.notes = notes
+            if core is not None and isinstance(core, list):
+                self.handle = core[0][:10] #if handle is none, use core to defind handle
+        if isinstance(self.handle, list):
+            self.handle = self.handle[0]
+        if colltypeid is None:
+            self.colltypeid = None
+        else:
+            self.colltypeid = int(colltypeid)
+    
+        if siteid is None:
+            self.siteid = None
+        else:
+            self.siteid = int(siteid)
+        if depenvtid is None:
+            self.depenvtid = None
+        else:
+            self.depenvtid = int(depenvtid)
+        
+        if collunitname is None:
+            self.collunitname = None
+        else:
+            self.collunitname = str(collunitname)
+        
+        if not colldate:
+            self.colldate = None
+        else:
+            if isinstance(colldate, list):
+                self.colldate = colldate[0]
+            else:
+                self.colldate = colldate
+
+        if colldevice is None:
+            self.colldevice = None
+        else:
+            self.colldevice = str(colldevice)
+        
+        if gpsaltitude is None:
+            self.gpsaltitude = None
+        else:
+            self.gpsaltitude = float(gpsaltitude)
+        
+        if gpserror is None:
+            self.gpserror = None
+        else:
+            self.gpserror = float(gpserror)
+        
+        if waterdepth is None:
+            self.waterdepth = None
+        else:
+            self.waterdepth = float(waterdepth)
+        
+        if substrateid is None:
+            self.substrateid = None
+        else: 
+            self.substrateid = int(substrateid)
+        
+        if slopeaspect is None:
+            self.slopeaspect = None
+        else:
+            self.slopeaspect = int(slopeaspect)
+        
+        if slopeangle is None:
+            self.slopeangle = None
+        else:
+            self.slopeangle = int(slopeangle)
+        
+        if not location:
+            self.location = None
+        else:
+            if isinstance(location, list):
+                self.location = str(location[0])
+            else:
+                self.location = location
+        
+        if notes is None:
+            self.notes = None
+        else:
+            self.notes = str(notes)
+        
         if not(isinstance(geog, Geog) or geog is None):
             raise TypeError("geog must be Geog or None.")
         self.geog = geog
@@ -50,3 +120,124 @@ class CollectionUnit:
         cur.execute(close_handles, {'long': self.geog.longitude, 'lat':self.geog.latitude, 'distance': distance, 'lim': limit})
         close_handles = cur.fetchall()
         return close_handles
+
+    def __eq__(self, other):
+        return (self.colltypeid == other.colltypeid and
+                self.depenvtid == other.depenvtid and
+                self.collunitname == other.collunitname and
+                self.colldate == other.colldate and
+                self.colldevice == other.colldevice and
+                self.gpsaltitude == other.gpsaltitude and
+                self.gpserror == other.gpserror and
+                self.waterdepth == other.waterdepth and
+                self.substrateid == other.substrateid and
+                self.slopeaspect == other.slopeaspect and
+                self.slopeangle == other.slopeangle and
+                self.location == other.location and
+                self.notes == other.notes and
+                self.geog == other.geog)
+    
+    def update_collunit(self, other, overwrite, cu_response=None):
+        if cu_response is None:
+            cu_response = type('cu_response', (), {})()  # Create a simple object
+            cu_response.match = {}
+            cu_response.message = []
+        attributes = ["colltypeid", "depenvtid", "collunitname", 
+              "colldate", "colldevice", "gpsaltitude", "gpserror", 
+              "waterdepth", "substrateid", "slopeaspect", "slopeangle", 
+              "location", "notes", "geog"]
+        updated_attributes = []
+        for attr in attributes:
+            if getattr(self, attr) != getattr(other, attr):
+                cu_response.matched[attr] = False
+                cu_response.message.append(f"? {attr} does not match. Update set to {overwrite[attr]}\n"
+                                           f"CSV File value: {getattr(self, attr)}.\n"
+                                           f"Neotoma value: {getattr(other, attr)}")
+            else:
+                cu_response.valid.append(True)
+                cu_response.message.append(f"✔  {attr} match.")
+            if overwrite[attr]:
+                setattr(self, attr, getattr(other, attr))
+                updated_attributes.append(attr)
+        return self
+    
+    def upsert_to_db(self, cur):
+        cu_query = """SELECT upsert_collunit(_collectionunitid := %(collectionunitid)s,
+                                             _handle := %(handle)s,
+                                             _siteid := %(siteid)s,
+                                             _colltypeid := %(colltypeid)s,
+                                             _depenvtid := %(depenvtid)s,
+                                             _collunitname := %(collunitname)s, 
+                                             _colldate := %(colldate)s,
+                                             _colldevice := %(colldevice)s,
+                                             _gpslatitude := %(ns)s,
+                                             _gpslongitude := %(ew)s, 
+                                             _gpsaltitude := %(gpsaltitude)s,
+                                             _gpserror := %(gpserror)s,
+                                             _waterdepth := %(waterdepth)s,
+                                             _substrateid := %(substrateid)s,
+                                             _slopeaspect := %(slopeaspect)s,
+                                             _slopeangle := %(slopeangle)s,
+                                             _location := %(location)s,
+                                             _notes := %(notes)s)
+                                             """
+        inputs = {'siteid': self.siteid,
+                  'collectionunitid': self.collectionunitid, 
+                  'handle': self.handle,
+                  'colltypeid': self.colltypeid,
+                  'depenvtid': self.depenvtid,
+                  'collunitname': self.collunitname,
+                  'colldate': self.colldate,
+                  'colldevice': self.colldevice,
+                  'ew': self.geog.latitude, 
+                  'ns': self.geog.longitude,
+                  'gpsaltitude': self.gpsaltitude,
+                  'gpserror': self.gpserror,
+                  'waterdepth': self.waterdepth,
+                  'substrateid': self.substrateid,
+                  'slopeaspect': self.slopeaspect,
+                  'slopeangle': self.slopeangle,
+                  'location': self.location,
+                  'notes': self.notes,
+                  }
+        cur.execute(cu_query, inputs)
+        self.collunitid = cur.fetchone()[0]
+        return self.collunitid
+    
+    def insert_to_db(self, cur):
+        cu_query = """SELECT ts.insertcollectionunit(
+                               _handle := %(handle)s,
+                               _siteid := %(siteid)s,
+                               _colltypeid := %(colltypeid)s,
+                               _depenvtid := %(depenvtid)s,
+                               _collunitname := %(collunitname)s,
+                               _colldate := %(colldate)s,
+                               _colldevice := %(colldevice)s,
+                               _gpslatitude := %(gpslatitude)s,  
+                               _gpslongitude := %(gpslongitude)s,
+                               _gpserror := %(gpserror)s,
+                               _waterdepth := %(waterdepth)s,
+                               _substrateid := %(substrateid)s,
+                               _slopeaspect := %(slopeaspect)s,
+                               _slopeangle := %(slopeangle)s,
+                               _location := %(location)s,
+                               _notes := %(notes)s)"""
+        inputs = {'handle': self.handle,
+                  'siteid': self.siteid,
+                  'colltypeid': self.colltypeid,
+                  'depenvtid': self.depenvtid,
+                  'collunitname': self.collunitname,
+                  'colldate': self.colldate,
+                  'colldevice': self.colldevice,
+                  'gpslatitude': self.geog.latitude,
+                  'gpslongitude': self.geog.longitude,
+                  'gpserror': self.gpserror,
+                  'waterdepth': self.waterdepth,
+                  'substrateid': self.substrateid,
+                  'slopeaspect': self.slopeaspect,
+                  'slopeangle': self.slopeangle,
+                  'location': self.location,
+                  'notes': self.notes}
+        cur.execute(cu_query, inputs)
+        self.collunitid = cur.fetchone()[0]
+        return self.collunitid

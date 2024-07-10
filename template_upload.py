@@ -83,13 +83,14 @@ for filename in filenames:
     #     #                                        uploader = uploader)
     #     # logfile.append(f"Geopolitical Unit: {uploader['geopolid']}")
 
-    # logfile.append('\n === Inserting Collection Units ===')
-    # # Placeholders are present
-    # uploader['collunitid'] = nu.insert_collunit(cur = cur,
-    #                                         yml_dict = yml_dict,
-    #                                         csv_file = csv_file,
-    #                                         uploader = uploader)
-    # logfile = logging_dict(uploader['collunitid'], logfile, "collunits['collunit']")
+    logfile.append('\n === Inserting Collection Units ===')
+    # Placeholders are present
+    uploader['collunitid'] = nu.insert_collunit(cur = cur,
+                                            yml_dict = yml_dict,
+                                            csv_file = csv_file,
+                                            uploader = uploader)
+    #logfile = logging_dict(uploader['collunitid'], logfile, "collunits['collunit']")
+    logfile = logging_response(uploader['collunitid'], logfile)
   
     # logfile.append('\n=== Inserting Analysis Units ===')
     # uploader['anunits'] = nu.insert_analysisunit(cur = cur,
@@ -189,13 +190,12 @@ for filename in filenames:
             writer.write(i)
             writer.write('\n')
     # all_true = all([uploader[key]['valid'] for key in uploader if 'valid' in uploader[key]])
-    all_true = True
+    all_true = False
     if all_true:
         print(f"{filename} was uploaded.\nMoved {filename} to the 'uploaded_files' folder.")
         #conn.commit()
         conn.rollback()
-        if not os.path.exists(uploaded_files):
-           os.makedirs(uploaded_files)
+        os.makedirs(uploaded_files, exist_ok=True)
         uploaded_path = os.path.join(uploaded_files, os.path.basename(filename))
         os.replace(filename, uploaded_path)
 

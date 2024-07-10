@@ -65,7 +65,7 @@ def insert_site(cur, yml_dict, csv_file):
                               sitename = site_info[1], 
                               geog=Geog((float(site_info[3]),float(site_info[2]))))
             #response['sitelist'].append(site)
-            updated_site = site.update_site(found_site, overwrite, response)
+            updated_site = site.update_site(found_site, overwrite, response) 
             updated_site.siteid = found_site.siteid
             response.sitelist.append({'original site': f"{site}", 
                                       'updated site': f"{updated_site}"})

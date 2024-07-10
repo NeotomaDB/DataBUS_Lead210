@@ -5,9 +5,9 @@
    valid upload.
 """
 from datetime import datetime
-import glob
-import json
 import os
+from pathlib import Path
+import json
 import psycopg2
 import pandas as pd
 from dotenv import load_dotenv
@@ -22,10 +22,11 @@ data = json.loads(os.getenv('PGDB_LOCAL'))
 conn = psycopg2.connect(**data, connect_timeout = 5)
 cur = conn.cursor()
 
-filenames = glob.glob(args['data'] + "*.csv")
-valid_logs = 'data/validation_logs'
-if not os.path.exists(valid_logs):
-            os.makedirs(valid_logs)
+#filenames = glob.glob(args['data'] + "*.csv")
+directory = Path(args['data'])
+filenames = directory.glob("*.csv")
+valid_logs = Path('data/validation_logs')
+valid_logs.mkdir(exist_ok=True)
 
 for filename in filenames:
     print(filename)
@@ -54,7 +55,7 @@ for filename in filenames:
         logfile = logging_dict(validator['csvValid'], logfile)
 
         logfile.append('\n === Validating Template Unit Definitions ===')
-        df = pd.read_csv(filename)
+        df = pd.read_csv(filename) #use csv reader
         validator['units'] = nv.valid_units(cur = cur,
                                  yml_dict = yml_dict,
                                  df = df)
@@ -83,7 +84,9 @@ for filename in filenames:
         logfile.append('\n === Checking Against Analysis Units ===')
         validator['analysisunit'] = nv.valid_analysisunit(yml_dict = yml_dict,
                                                           csv_file = csv_file)
-        logfile = logging_dict(validator['analysisunit'], logfile)
+        #logfile = logging_dict(validator['analysisunit'], logfile)
+        logfile = logging_response(validator['analysisunit'], logfile)
+        break
 
         logfile.append('\n === Checking Chronologies ===')
         validator['chronologies'] = nv.valid_chronologies(yml_dict = yml_dict,
@@ -125,8 +128,9 @@ for filename in filenames:
         #TODO: validate uncertaintybases
      
         ########### Write to log.
-        modified_filename = filename.replace('data/', 'data/validation_logs/')
-        with open(modified_filename + '.valid.log', 'w', encoding = "utf-8") as writer:
+        modified_filename = f'{filename}'.replace('data/', 'data/validation_logs/')
+        modified_filename = Path(modified_filename + '.valid.log')
+        with modified_filename.open(mode = 'w', encoding = "utf-8") as writer:
             for i in logfile:
                 writer.write(i)
                 writer.write('\n')
