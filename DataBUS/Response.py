@@ -55,7 +55,7 @@ class AUResponse(Response):
         #self.doublematched = (self.matched['namematch'] and self.matched['distmatch'])
         self.aulist = []
         #self.closecu = []
-        self.auid = None
+        self.auid = []
     
     def __str__(self):
         response_str = super().__str__()

@@ -20,4 +20,23 @@ class AnalysisUnit:
                      f"ID: {self.analysisunitid}, ")
         return statement
     
+    def insert_to_db(self, cur):
+        au_query = """SELECT ts.insertanalysisunit(_collectionunitid := %(collunitid)s,
+                                                   _depth := %(depth)s,
+                                                   _thickness := %(thickness)s,
+                                                   _faciesid := %(faciesid)s,
+                                                   _mixed := %(mixed)s,
+                                                   _igsn := %(igsn)s,
+                                                   _notes := %(notes)s)"""
+        inputs = {'collunitid': self.collectionunitid,
+                  'depth': self.depth,
+                  'thickness': self.thickness,
+                  'faciesid': self.faciesid,
+                  'mixed': self.mixed,
+                  'igsn': self.igsn,
+                  'notes': self.notes}
+        cur.execute(au_query, inputs)
+        self.analysisunitid = cur.fetchone()[0]
+        return self.analysisunitid
+    
 

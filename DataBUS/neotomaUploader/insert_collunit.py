@@ -1,13 +1,10 @@
 import DataBUS.neotomaHelpers as nh
 from DataBUS import Geog, WrongCoordinates, CollectionUnit, CUResponse 
-
 with open('./DataBUS/sqlHelpers/upsert_collunit.sql', 'r') as sql_file:
     upsert_query = sql_file.read()
 
-
 def insert_collunit(cur, yml_dict, csv_file, uploader):
     """_Insert a new collection unit to a site_
-
     Args:
         cur (_psycopg2.extensions.cursor_): _A cursor pointing to the Neotoma 
             Paleoecology Database._

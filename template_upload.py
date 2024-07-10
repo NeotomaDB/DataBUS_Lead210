@@ -89,14 +89,14 @@ for filename in filenames:
                                             yml_dict = yml_dict,
                                             csv_file = csv_file,
                                             uploader = uploader)
-    #logfile = logging_dict(uploader['collunitid'], logfile, "collunits['collunit']")
     logfile = logging_response(uploader['collunitid'], logfile)
   
-    # logfile.append('\n=== Inserting Analysis Units ===')
-    # uploader['anunits'] = nu.insert_analysisunit(cur = cur,
-    #                                             yml_dict = yml_dict,
-    #                                             csv_file = csv_file,
-    #                                             uploader = uploader)
+    logfile.append('\n=== Inserting Analysis Units ===')
+    uploader['anunits'] = nu.insert_analysisunit(cur = cur,
+                                                yml_dict = yml_dict,
+                                                csv_file = csv_file,
+                                                uploader = uploader)
+    logfile = logging_response(uploader['anunits'], logfile)
     # logfile = logging_dict(uploader['anunits'], logfile)
 
     # logfile.append('\n=== Inserting Chronology ===')
