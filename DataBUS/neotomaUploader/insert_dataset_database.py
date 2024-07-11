@@ -1,5 +1,5 @@
-import logging
-import DataBUS.neotomaHelpers as nh 
+import DataBUS.neotomaHelpers as nh
+from DataBUS import Response, DatasetDatabase
 
 def insert_dataset_database(cur, yml_dict, uploader):
     """
@@ -15,28 +15,29 @@ def insert_dataset_database(cur, yml_dict, uploader):
             - 'databaseid' (int): ID of the associated database or NaN if not available.
             - 'valid' (bool): Indicates if the insertion was successful.
     """
-    response = {'databaseid': None, 'valid': list(), 'message': list()}
-    db_query = """
-               SELECT ts.insertdatasetdatabase(_datasetid := %(datasetid)s, 
-                                               _databaseid := %(databaseid)s)
-               """
-    inputs = dict()
+    response = Response()
+
     db_name = nh.retrieve_dict(yml_dict, 'ndb.datasetdatabases.databaseid')
-    inputs['databaseid'] = db_name[0]['value']
+    inputs = {'databaseid': db_name[0]['value']}
 
     try:
-        cur.execute(db_query, {'datasetid': int(uploader['datasetid']['datasetid']), 
-                               'databaseid': int(inputs['databaseid'])})
-        response['valid'].append(True)
-        response['message'].append(f"✔ Database ID {inputs['databaseid']} information added.")
-
+        db = DatasetDatabase(datasetid = int(uploader['datasetid'].datasetid), 
+                        databaseid = int(inputs['databaseid']))
+        response.valid.append(True)
+        response.message.append(f"✔ Database ID {inputs['databaseid']} created.")
     except Exception as e:
-        logging.error(f"✗ Database information is not correct. {e}")
-        response['message'].append(f"✗ Database information is not correct. {e}")
-        cur.execute(db_query, {'datasetid': int(uploader['datasetid']['datasetid']), 
-                            'databaseid': None})
-        response['message'].append(f"✗ Using temporary query.")
-        response['valid'] = False
-    response['databaseid'] = inputs['databaseid']
-    response['valid'] = all(response['valid'])
+        db = DatasetDatabase(datasetid = int(uploader['datasetid'].datasetid))
+        response.message.append(f"✗ Database information is not correct. {e}")
+        response.valid.append(False)
+    finally:
+        try:
+            db.insert_to_db(cur)
+            response.valid.append(True)
+            response.message.append(f"✔ Database ID {inputs['databaseid']} inserted.")
+        except Exception as e:
+            response.message.append(f"✗ Cannot upload DatasetDatabase: {e}")
+            response.valid.append(False)
+
+    response.databaseid = inputs['databaseid']
+    response.validAll = all(response.valid)
     return response

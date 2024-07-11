@@ -7,7 +7,7 @@ class Response:
         self.datasetpi = []
         self.processor = []
         self.repoid = None
-        self.datasetid = None
+        self.databaseid = None
     
     def __str__(self):
         new_msg = "\n".join(str(m) for m in self.message)

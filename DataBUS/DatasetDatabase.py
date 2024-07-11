@@ -1,6 +1,6 @@
 class DatasetDatabase:
-    def __init__(self, datasetid, databaseid):
-        if isinstance(datasetid, int):
+    def __init__(self, databaseid, datasetid = None):
+        if isinstance(datasetid, int) or datasetid is None:
            self.datasetid = datasetid
         else:
             raise ValueError("Dataset ID must be an integer.")
@@ -9,14 +9,14 @@ class DatasetDatabase:
            self.repositoryid = databaseid 
  
     def insert_to_db(self, cur):
-        repo_query = """
-            SELECT ts.insertdatasetrepository(_datasetid := %(datasetid)s, 
+        db_query = """
+               SELECT ts.insertdatasetdatabase(_datasetid := %(datasetid)s, 
                                                _databaseid := %(databaseid)s)
-                                            """
+               """
         inputs = {'datasetid': self.datasetid,
                   'databaseid': self.databaseid}
         print(inputs)
-        cur.execute(repo_query, inputs)
+        cur.execute(db_query, inputs)
         return
 
     def __str__(self):
