@@ -60,7 +60,7 @@ def valid_collunit(cur, yml_dict, csv_file):
     if inputs['handle'] != cu.handle:
         response.message.append('? Handlename not given. Handle created from core code.')
     cur.execute("SELECT handle FROM ndb.collectionunits WHERE handle = %(handle)s;", 
-                ({'handle': cu.handle[0]}))
+                ({'handle': cu.handle}))
     rows = cur.fetchall()
     if not rows:
         response.message.append('✔  No handle found. Creating a new collection unit.')

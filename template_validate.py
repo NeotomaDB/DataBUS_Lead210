@@ -78,25 +78,23 @@ for filename in filenames:
         validator['collunits'] = nv.valid_collunit(cur = cur,
                                                          yml_dict = yml_dict,
                                                          csv_file = csv_file)
-        #logfile = logging_dict(validator['collunits'], logfile, 'sitelist')
         logfile = logging_response(validator['collunits'], logfile)
 
         logfile.append('\n === Checking Against Analysis Units ===')
         validator['analysisunit'] = nv.valid_analysisunit(yml_dict = yml_dict,
                                                           csv_file = csv_file)
-        #logfile = logging_dict(validator['analysisunit'], logfile)
         logfile = logging_response(validator['analysisunit'], logfile)
-        break
 
         logfile.append('\n === Checking Chronologies ===')
-        validator['chronologies'] = nv.valid_chronologies(yml_dict = yml_dict,
+        validator['chronologies'] = nv.valid_chronologies(cur = cur,
+                                                          yml_dict = yml_dict,
                                                           csv_file = csv_file)
-        logfile = logging_dict(validator['chronologies'], logfile)
-
+        logfile = logging_response(validator['chronologies'], logfile)
+        #
         logfile.append('\n === Checking Chron Controls ===')
         validator['chron_controls'] = nv.valid_chroncontrols(yml_dict = yml_dict,
                                                           csv_file = csv_file)
-        logfile = logging_dict(validator['chron_controls'], logfile)
+        logfile = logging_response(validator['chron_controls'], logfile)
 
         # TODO: Validate dataset - looks like this should be a geochron
         logfile.append('\n === Checking Dataset ===')

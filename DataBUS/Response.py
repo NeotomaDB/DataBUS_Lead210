@@ -62,3 +62,16 @@ class AUResponse(Response):
         if self.aulist:
             response_str += f"\n Analysis Unit list:\n" + "\n".join(str(site) for site in self.aulist)
         return response_str
+    
+class ChronResponse(Response):
+    def __init__(self):
+        super().__init__()
+        self.chronlist = []
+        self.chronid = []
+        self.ccid = []
+    
+    def __str__(self):
+        response_str = super().__str__()
+        if self.chronlist:
+            response_str += f"\n Chronology Unit list:\n" + "\n".join(str(site) for site in self.chronlist)
+        return response_str

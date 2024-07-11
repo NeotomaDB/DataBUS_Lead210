@@ -99,20 +99,21 @@ for filename in filenames:
     logfile = logging_response(uploader['anunits'], logfile)
     # logfile = logging_dict(uploader['anunits'], logfile)
 
-    # logfile.append('\n=== Inserting Chronology ===')
-    # # Placeholders exist
-    # uploader['chronology'] = nu.insert_chronology(cur = cur,
-    #                                             yml_dict = yml_dict,
-    #                                             csv_file = csv_file,
-    #                                             uploader = uploader)
-    # logfile = logging_dict(uploader['chronology'], logfile)
+    logfile.append('\n=== Inserting Chronology ===')
+    # Placeholders exist
+    uploader['chronology'] = nu.insert_chronology(cur = cur,
+                                                yml_dict = yml_dict,
+                                                csv_file = csv_file,
+                                                uploader = uploader)
+    logfile = logging_response(uploader['chronology'], logfile)
+#    logfile = logging_dict(uploader['chronology'], logfile)
     
-    # logfile.append('\n=== Inserting Chroncontrol ===')
-    # uploader['chroncontrol'] = nu.insert_chron_control(cur = cur,
-    #                                                 yml_dict = yml_dict,
-    #                                                 csv_file = csv_file,
-    #                                                 uploader = uploader)
-    # logfile = logging_dict(uploader['chroncontrol'], logfile)
+    logfile.append('\n=== Inserting Chroncontrol ===')
+    uploader['chroncontrol'] = nu.insert_chron_control(cur = cur,
+                                                    yml_dict = yml_dict,
+                                                    csv_file = csv_file,
+                                                    uploader = uploader)
+    logfile = logging_response(uploader['chroncontrol'], logfile)
 
     # logfile.append('\n=== Inserting Dataset ===')
     # # Placeholders exist

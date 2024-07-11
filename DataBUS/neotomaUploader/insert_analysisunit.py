@@ -50,6 +50,7 @@ def insert_analysisunit(cur, yml_dict, csv_file, uploader):
             response.message.append(f"✗ Adding temporary Analysis Unit {auid} to continue process." 
                                     f"\nSite will be removed from upload.")
             response.valid.append(False)
-    response.auid.append(auid)
+        #response.aulist.append(auid)
+        response.auid.append(auid)
     response.validAll = all(response.valid)
     return response

@@ -1,6 +1,4 @@
 from .Geog import Geog, WrongCoordinates
-with open('./DataBUS/sqlHelpers/collunit_query.sql', 'r') as sql_file:
-    collunit_query = sql_file.read()
 class CollectionUnit:
     description = "Collection Unit object in Neotoma"
     def __init__(self, collectionunitid = None , handle = None, core = None, 
