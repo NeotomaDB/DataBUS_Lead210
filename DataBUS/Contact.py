@@ -1,5 +1,4 @@
 class Contact:
-    pass
     def __init__(self, contactid, contactname = None, order = None):
         if isinstance(contactid, int):
            self.contactid = contactid
@@ -9,29 +8,35 @@ class Contact:
         if isinstance(order, int) or order is None:
            self.order = order
         else:
-            raise ValueError("Order must be an integer.")
+            raise ValueError("Order must be an integer or None.")
         
-    def insert_pi(self, cur):
-        dataset_query = """
-        SELECT ts.insertdataset(_collectionunitid:= %(collunitid)s,
-                                _datasettypeid := %(datasettypeid)s,
-                                _datasetname := %(datasetname)s,
-                                _notes := %(notes)s);
-                        """
-        inputs = {'collunitid' : self.collectionunitid,
-                  'datasettypeid': self.datasettypeid,
-                  'datasetname': self.datasetname,
-                  'notes': self.notes}
-        print(inputs)
-        cur.execute(dataset_query, inputs)
-        self.datasetid = cur.fetchone()[0]
-        return self.datasetid
-    
-    def insert_sample_analyst(self, cur):
-        pass
+    def insert_pi(self, cur, datasetid):
+        if not isinstance(datasetid, int):
+            raise ValueError("DatasetID must be an integer")
 
-    def insert_XX():
-        pass
+        pi_query = """
+        SELECT ts.insertdatasetpi(_datasetid := %(datasetid)s, 
+                                  _contactid := %(contactid)s,
+                                  _piorder := %(piorder)s);
+                        """
+        inputs = {'datasetid' : datasetid,
+                  'contactid': self.contactid,
+                  'piorder': self.order}
+        cur.execute(pi_query, inputs)
+        return
+    
+    def insert_data_processor(self, cur, datasetid):
+        processor = """
+                SELECT ts.insertdataprocessor(_datasetid := %(datasetid)s, 
+                                              _contactid := %(contactid)s)
+                    """
+        inputs = {'datasetid' : datasetid,
+                  'contactid': self.contactid}
+        cur.execute(processor, inputs)
+        return
+
+
+
 
     def __str__(self):
         pass

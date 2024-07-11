@@ -8,7 +8,7 @@ import os
 
 import DataBUS.neotomaHelpers
 
-from .valid_agent import valid_agent
+from .valid_contact import valid_contact
 from .valid_units import valid_units
 from .valid_site import valid_site
 from .valid_collunit import valid_collunit
@@ -18,6 +18,8 @@ from .valid_chroncontrols import valid_chroncontrols
 from .valid_dataset import valid_dataset
 from .validGeoPol import validGeoPol
 from .valid_horizon import valid_horizon
+from .valid_dataset_repository import valid_dataset_repository
+from .valid_dataset_database import valid_dataset_database
 from .check_file import check_file
 from .valid_csv import valid_csv
 from .vocabDict import vocabDict

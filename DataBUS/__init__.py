@@ -13,3 +13,6 @@ from .CollectionUnit import CollectionUnit
 from .AnalysisUnit import AnalysisUnit
 from .Chronology import Chronology
 from .ChronControl import ChronControl
+from .Dataset import Dataset
+from .Contact import Contact
+from .Repository import Repository

@@ -1,36 +1,44 @@
-from DataBUS.neotomaHelpers.pull_params import pull_params
-from DataBUS.neotomaHelpers.retrieve_dict import retrieve_dict
+import DataBUS.neotomaHelpers as nh
+from DataBUS import Dataset, Response
+
 def valid_dataset(cur, yml_dict, csv_file):
     """_Validating Datasets_"""
-    response = {'valid': [],
-                'message': []}
+    response = Response()
     
-    inputs = dict()
-    #params = ['datasetname', 'datasettypeid']
-    ds_name = retrieve_dict(yml_dict, 'ndb.datasets.datasetname')
-    inputs['datasetname'] = ds_name[0]
-    ds_id = retrieve_dict(yml_dict, 'ndb.datasettypes.datasettypeid')
-    inputs['datasettypeid'] = ds_id[0]
+    inputs = {'datasetname': 
+              nh.retrieve_dict(yml_dict, 'ndb.datasets.datasetname')[0]['value'].lower(),
+              'datasettypeid': 
+              nh.retrieve_dict(yml_dict, 'ndb.datasettypes.datasettypeid')[0]['value'].lower()}
+    response.message.append(f"Datasettype: {inputs['datasetname']}")
+    inputs['notes'] = nh.clean_inputs(nh.pull_params(['notes'], yml_dict, csv_file, 'ndb.datasets'))
 
     query = "SELECT DISTINCT datasettypeid FROM ndb.datasettypes"
     cur.execute(query)
-    
     all_datasets = cur.fetchall()
     all_datasets = [value[0] for value in all_datasets]
 
-    ds_type = inputs['datasettypeid']['value'].lower()
-
     query = "SELECT datasettypeid FROM ndb.datasettypes WHERE LOWER(datasettype) = %(ds_type)s"
-    cur.execute(query,{'ds_type': ds_type})
-    datasetid = cur.fetchone()[0]
+    cur.execute(query,{'ds_type': inputs['datasettypeid']})
+    if inputs['datasettypeid']:
+        inputs['datasettypeid'] = inputs['datasettypeid'][0]
 
-    if datasetid in all_datasets:
-        response['message'].append("✔ Dataset type exists in neotoma.")
-        response['valid'].append(True)
+    if inputs['datasettypeid'] in all_datasets:
+        response.message.append("✔ Dataset type exists in neotoma.")
+        response.valid.append(True)
     else:
-        response['message'].append(f"✗ Dataset type is not known to neotoma. Add it first")
-        response['valid'].append(False)
+        response.message.append(f"✗ Dataset type is not known to neotoma. Add it first")
+        response.valid.append(False)
 
-    response['valid'] = all(response['valid'])
+    try:
+        Dataset(datasettypeid = None, 
+                 datasetname = inputs['datasetname'], 
+                 notes = inputs['notes'])
+        response.message.append(f"✔ Dataset can be created.")
+        response.valid.append(True)
+    except Exception as e:
+        response.message.append(f"✗ Dataset cannot be created: {e}")
+        response.valid.append(False)
+    
+    response.validAll = all(response.valid)
     
     return response

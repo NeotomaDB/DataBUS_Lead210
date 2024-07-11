@@ -39,7 +39,6 @@ class ChronControl:
                   'agelimitolder': self.agelimitolder,
                   'notes': self.notes
                   }
-        print(inputs)
         cur.execute(chroncon_query, inputs)
         self.chroncontrolid = cur.fetchone()[0]
         return self.chroncontrolid

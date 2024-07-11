@@ -1,4 +1,4 @@
-import logging
+from DataBUS import Response, Contact
 import DataBUS.neotomaHelpers as nh
 
 def insert_dataset_pi(cur, yml_dict, csv_file, uploader):
@@ -16,32 +16,31 @@ def insert_dataset_pi(cur, yml_dict, csv_file, uploader):
             - 'dataset_pi_ids' (list): List of dictionaries containing details of the contacts, including their IDs and order.
             - 'valid' (bool): Indicates if all insertions were successful.
     """
-    response = {'dataset_pi_ids': list(), 'valid': list(), 'message': list()}
-    params = ['contactid']
-    inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.datasetpis')
+    response = Response()
+    inputs = nh.pull_params(['contactid'], yml_dict, csv_file, 'ndb.datasetpis')
 
     # Use this method to preserve order.
     inputs['contactid'] = list(dict.fromkeys(inputs['contactid']))
     contids = nh.get_contacts(cur, inputs['contactid'])
-    pi_query = """SELECT ts.insertdatasetpi(_datasetid := %(datasetid)s, 
-                                            _contactid := %(contid)s,
-                                            _piorder := %(piorder)s);"""
-    for contact in contids:
+    for agent in contids:
         try:
-            cur.execute(pi_query, {'datasetid': int(uploader['datasetid']['datasetid']), 
-                                   'contid': int(contact['id']),
-                                   'piorder': int(contact['order'])})
-            response['valid'].append(True)
-            response['message'].append(f"✔ Added PI {contact['id']}.")
+            contact = Contact(contactid = int(agent['id']),
+                              order = int(agent['order']))
+            response.valid.append(True)
+            response.message.append(f"✔ Created PI {agent['id']}.")
         except Exception as e:
-            logging.error(f"✗ DatasetPI is not correct. {e}")
-            response['message'].append(f"✗ DatasetPI is not correct. {e}")
-            cur.execute(pi_query, {'datasetid': int(uploader['datasetid']['datasetid']), 
-                                   'contid': None,
-                                   'piorder': None})
-            response['valid'].append(False)
-            response['message'].append(f"✗ Temporary insertion of PIs")
+            contact = Contact(contactid = None,
+                              order = None)
+            response.message.append(f"✗ Contact DatasetPI is not correct. {e}")
+            response.valid.append(False)
+        finally:
+            try:
+                contact.insert_pi(cur, uploader['datasetid'].datasetid)
+                response.message.append(f"✔ Added PI {agent['id']}.")
+            except Exception as e:
+                response.message.append(f"✗ DatasetPI cannot be added. {e}")
+                response.valid.append(False)
 
-    response['dataset_pi_ids'] = contids
-    response['valid'] = all(response['valid'])
+    response.datasetpi = contids
+    response.validAll = all(response.valid)
     return response

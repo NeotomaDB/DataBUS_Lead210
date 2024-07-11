@@ -3,6 +3,11 @@ class Response:
         self.valid = valid if valid is not None else []
         self.message = message if message is not None else []
         self.validAll = all(self.valid)
+        self.datasetid = None
+        self.datasetpi = []
+        self.processor = []
+        self.repoid = None
+        self.datasetid = None
     
     def __str__(self):
         new_msg = "\n".join(str(m) for m in self.message)

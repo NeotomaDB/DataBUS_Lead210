@@ -1,14 +1,13 @@
-class Dataset:
-    def __init__(self, datasettypeid, datasetid = None, collectionunitid = None, 
-                 datasetname = None, notes = None):
-           self.datasetid = datasetid
-           self.collectionunitid = collectionunitid
-           if isinstance(datasettypeid, int):
-               self.datasettypeid = datasettypeid
-           else: 
-                raise ValueError("Dataset type ID must be integer")
-           self.datasetname = datasetname
-           self.notes = notes
+class DataProcessor:
+    def __init__(self, datasettypeid, contactid = None):
+        if isinstance(datasettypeid, int):
+            self.datasettypeid = datasettypeid
+        else:
+            raise ValueError("DatasettypeID must be integer")
+        if isinstance(datasettypeid, int):
+             self.contactid = contactid
+        else:
+            raise ValueError("DatasettypeID must be integer")
         
     def insert_to_db(self, cur):
         dataset_query = """
