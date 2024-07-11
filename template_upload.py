@@ -115,34 +115,34 @@ for filename in filenames:
                                                     uploader = uploader)
     logfile = logging_response(uploader['chroncontrol'], logfile)
 
-    # logfile.append('\n=== Inserting Dataset ===')
-    # # Placeholders exist
-    # uploader['datasetid'] = nu.insert_dataset(cur = cur,
-    #                                         yml_dict = yml_dict,
-    #                                         csv_file = csv_file,
-    #                                         uploader = uploader)
-    # logfile = logging_dict(uploader['datasetid'], logfile)
+    logfile.append('\n=== Inserting Dataset ===')
+    # Placeholders exist
+    uploader['datasetid'] = nu.insert_dataset(cur = cur,
+                                            yml_dict = yml_dict,
+                                            csv_file = csv_file,
+                                            uploader = uploader)
+    logfile = logging_response(uploader['datasetid'], logfile)
 
-    # logfile.append('\n=== Inserting Dataset PI ===')
-    # uploader['datasetpi'] = nu.insert_dataset_pi(cur = cur,
-    #                                             yml_dict = yml_dict,
-    #                                             csv_file = csv_file,
-    #                                             uploader = uploader)
-    # logfile = logging_dict(uploader['datasetpi'], logfile)
+    logfile.append('\n=== Inserting Dataset PI ===')
+    uploader['datasetpi'] = nu.insert_dataset_pi(cur = cur,
+                                                yml_dict = yml_dict,
+                                                csv_file = csv_file,
+                                                uploader = uploader)
+    logfile = logging_response(uploader['datasetpi'], logfile)
  
-    # logfile.append('\n=== Inserting Data Processor ===')
-    # uploader['processor'] = nu.insert_data_processor(cur = cur,
-    #                                                 yml_dict = yml_dict,
-    #                                                 csv_file = csv_file,
-    #                                                 uploader = uploader)
-    # logfile = logging_dict(uploader['processor'], logfile)
+    logfile.append('\n=== Inserting Data Processor ===')
+    uploader['processor'] = nu.insert_data_processor(cur = cur,
+                                                    yml_dict = yml_dict,
+                                                    csv_file = csv_file,
+                                                    uploader = uploader)
+    logfile = logging_response(uploader['processor'], logfile)
  
-    # logfile.append('\n=== Inserting Repository ===')
-    # uploader['repository'] = nu.insert_dataset_repository(cur = cur,
-    #                                                     yml_dict = yml_dict,
-    #                                                     csv_file = csv_file,
-    #                                                     uploader = uploader)
-    # logfile = logging_dict(uploader['repository'], logfile)
+    logfile.append('\n=== Inserting Repository ===')
+    uploader['repository'] = nu.insert_dataset_repository(cur = cur,
+                                                        yml_dict = yml_dict,
+                                                        csv_file = csv_file,
+                                                        uploader = uploader)
+    logfile = logging_response(uploader['repository'], logfile)
 
     # logfile.append('\n=== Inserting Dataset Database ===')
     # uploader['database'] = nu.insert_dataset_database(cur = cur,

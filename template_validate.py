@@ -101,19 +101,31 @@ for filename in filenames:
         validator['dataset'] = nv.valid_dataset(cur = cur,
                                                 yml_dict = yml_dict,
                                                 csv_file = csv_file)
-        logfile = logging_dict(validator['dataset'], logfile)
+        logfile = logging_response(validator['dataset'], logfile)
 
         ########### PI names:
         logfile.append('\n === Checking Against Contact Names ===')
-        validator['agent'] = nv.valid_agent(cur,
+        validator['agent'] = nv.valid_contact(cur,
                                             csv_file,
                                             yml_dict)
-        logfile = logging_dict(validator['agent'], logfile)
+        logfile = logging_response(validator['agent'], logfile)
 
         logfile.append('\n === Checking the Dating Horizon is Valid ===')
         validator['horizoncheck'] = nv.valid_horizon(yml_dict,
                                                      csv_file)
-        logfile = logging_dict(validator['horizoncheck'], logfile)
+        logfile = logging_response(validator['horizoncheck'], logfile)
+
+        logfile.append('\n=== Validating Specimens Repository ===')
+        validator['repository'] = nv.valid_dataset_repository(cur = cur,
+                                                            yml_dict = yml_dict,
+                                                            csv_file = csv_file)
+        logfile = logging_response(validator['repository'], logfile)
+
+        logfile.append('\n=== Validating Dataset Database ===')
+        validator['database'] = nv.insert_dataset_database(cur = cur,
+                                                        yml_dict = yml_dict,
+                                                        validator = validator)
+        logfile = logging_dict(validator['database'], logfile)
 
         logfile.append('\n === Validating Taxa Names ===')
         validator['taxa'] = nv.valid_taxa(cur,
