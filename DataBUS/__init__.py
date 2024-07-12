@@ -17,3 +17,4 @@ from .Dataset import Dataset
 from .Contact import Contact
 from .Repository import Repository
 from .DatasetDatabase import DatasetDatabase
+from .Sample import Sample

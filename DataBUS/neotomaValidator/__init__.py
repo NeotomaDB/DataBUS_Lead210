@@ -20,6 +20,7 @@ from .validGeoPol import validGeoPol
 from .valid_horizon import valid_horizon
 from .valid_dataset_repository import valid_dataset_repository
 from .valid_dataset_database import valid_dataset_database
+from .valid_sample import valid_sample
 from .check_file import check_file
 from .valid_csv import valid_csv
 from .vocabDict import vocabDict

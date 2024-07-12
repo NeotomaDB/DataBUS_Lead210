@@ -17,6 +17,7 @@ def valid_analysisunit(yml_dict, csv_file):
             response.valid.append(True)
 
     if 'depth' in inputs and len(inputs['depth']) > 0:
+        response.aucounter = 0
         for i in range(0, len(inputs['depth'])):
             try:
                 AnalysisUnit(analysisunitid = None,
@@ -36,6 +37,7 @@ def valid_analysisunit(yml_dict, csv_file):
                 response.valid.append(False)
                 response.message.append(f'✗ AnalysisUnit cannot be created: '
                                         f'{e}')
+            response.aucounter += 1
     return response
 
         

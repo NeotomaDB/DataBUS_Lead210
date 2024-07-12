@@ -8,6 +8,7 @@ class Response:
         self.processor = []
         self.repoid = None
         self.databaseid = None
+        self.sampleid = []
     
     def __str__(self):
         new_msg = "\n".join(str(m) for m in self.message)
