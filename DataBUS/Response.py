@@ -73,8 +73,8 @@ class ChronResponse(Response):
     def __init__(self):
         super().__init__()
         self.chronlist = []
-        self.chronid = []
         self.ccid = []
+        self.chronid = None
     
     def __str__(self):
         response_str = super().__str__()

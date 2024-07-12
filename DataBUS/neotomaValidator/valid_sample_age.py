@@ -1,7 +1,7 @@
 import DataBUS.neotomaHelpers as nh
 from DataBUS import SampleAge, Response
 
-def insert_sample_age(cur, yml_dict, csv_file, uploader):
+def valid_sample_age(cur, yml_dict, csv_file, validator):
     """
     Inserts sample age data into a database.
 
@@ -24,7 +24,7 @@ def insert_sample_age(cur, yml_dict, csv_file, uploader):
     inputs['age'] = [float(value) if value != 'NA' else None for value in inputs['age']]
     inputs['uncertainty'] = [float(value) if value != 'NA' else None for value in inputs['uncertainty']]
 
-    for i in range(len(uploader['samples'].sampleid)):
+    for i in range(0, validator['sample'].sacounter):
         if isinstance(inputs['age'][i], (int, float)):
             age_younger = inputs['age'][i]-inputs['uncertainty'][i]
             age_older = inputs['age'][i]+inputs['uncertainty'][i]
@@ -33,23 +33,16 @@ def insert_sample_age(cur, yml_dict, csv_file, uploader):
             age_younger = None
             age_older = None
         try:
-            sa = SampleAge(sampleid= int(uploader['samples'].sampleid[i]),
-                           chronologyid= int(uploader['chronology'].chronid),
+            sa = SampleAge(sampleid= 2, #Placeholder
+                           chronologyid= 2, #Placeholder
                            age= inputs['age'][i],
                            ageyounger= age_younger, 
                            ageolder= age_older)
             response.valid.append(True)
+            response.message.append(f"✔ Sample age can be created.")
         except Exception as e:
             response.valid.append(False)
-            sa = SampleAge()
-        finally:
-            try:
-                sa_id = sa.insert_to_db(cur)
-                response.valid.append(True)
-                response.message.append(f"✔ Adding sample age {sa_id} for sample {uploader['samples'].sampleid[i]}")
-            except Exception as e:
-                response.message.append(f"✗ Samples Age cannot be added. {e}")
-                response.valid.append(False)
+            response.message.append(f"✗ Samples Age cannot be created. {e}")
     
     response.valid = all(response.valid)
     return response
