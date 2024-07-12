@@ -35,8 +35,17 @@ class Contact:
         cur.execute(processor, inputs)
         return
 
-
-
+    def insert_sample_analyst(self, cur, sampleid):
+        sa_query = """
+                   SELECT ts.insertsampleanalyst(_sampleid := %(sampleid)s,
+                                                 _contactid := %(contactid)s,
+                                                 _analystorder := %(analystorder)s)
+                    """
+        inputs = {'sampleid': sampleid,
+                  'contactid': self.contactid,
+                  'analystorder': self.order}
+        cur.execute(sa_query, inputs)
+        return None
 
     def __str__(self):
         pass

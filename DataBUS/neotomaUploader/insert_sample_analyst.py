@@ -1,4 +1,5 @@
 import DataBUS.neotomaHelpers as nh
+from DataBUS import Response, Contact
 
 def insert_sample_analyst(cur, yml_dict, csv_file, uploader):
     """
@@ -15,36 +16,35 @@ def insert_sample_analyst(cur, yml_dict, csv_file, uploader):
             - 'contids' (list): List of dictionaries containing details of the analysts' IDs.
             - 'valid' (bool): Indicates if all insertions were successful.
     """
-    response = {'contids': list(), 'valid': list(), 'message': list()}
+    response = Response()
     params = ['contactid']
     inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.sampleanalysts')
 
     inputs['contactid'] = list(dict.fromkeys(inputs['contactid']))
     contids = nh.get_contacts(cur, inputs['contactid'])
-    response['contids'] = contids
 
-    inserter = """
-                SELECT ts.insertsampleanalyst(_sampleid := %(sampleid)s,
-                                              _contactid := %(contactid)s,
-                                              _analystorder := %(analystorder)s)
-                """
-    
-    for i in range(len(uploader['samples']['samples'])):
+    for i in range(len(uploader['samples'].sampleid)):
         for contact in contids:
             try:
-                cur.execute(inserter, {'sampleid': int(uploader['samples']['samples'][i]), 
-                                       'contactid': int(contact['id']),
-                                       'analystorder': int(contact['order'])})
-                response['valid'].append(True)
-                response['message'].append(f"✔  Added Sample Analyst {contact['id']} for sample {uploader['samples']['samples'][i]}.")
-
+                agent = Contact(contactid = int(contact['id']),
+                                order = int(contact['order']))
+                response.valid.append(True)
+                response.message.append(f"✔  Created Sample Analyst {contact['id']} "
+                                        f"for sample {uploader['samples'].sampleid[i]}.")
             except Exception as e:
-                response['message'].append(f"✗ Sample Analyst data is not correct. {e}")
-                response['message'].append(f"Executed temporary query.")
-                cur.execute(inserter, {'sampleid': int(uploader['samples']['samples'][i]), 
-                                       'contactid': None,
-                                       'analystorder': None})
-                response['valid'].append(False)
+                agent = Contact(contactid=contact['id']),
+                response.message.append(f"✗ Sample Analyst data is not correct. {e}")
+                response.valid.append(False)
+            finally:
+                try:
+                    agent.insert_sample_analyst(cur, sampleid=int(uploader['samples'].sampleid[i]))
+                    response.valid.append(True)
+                    response.message.append(f"✔  Sample Analyst {contact['id']} added"
+                                               f"for sample {uploader['samples'].sampleid[i]}.")
+                except:
+                    response.message.append(f"Executed temporary query.")
+                    response.valid.append(False)
+                response.valid.append(False)
 
-    response['valid'] = all(response['valid'])
+    response.valid = all(response.valid)
     return response
