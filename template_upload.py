@@ -8,7 +8,7 @@ import DataBUS.neotomaHelpers as nh
 import DataBUS.neotomaUploader as nu
 from DataBUS.neotomaValidator.valid_csv import valid_csv
 from DataBUS.neotomaValidator.check_file import check_file
-from DataBUS.neotomaHelpers.logging_dict import logging_dict, logging_response
+from DataBUS.neotomaHelpers.logging_dict import logging_response
 """
 Use this command after having validated the files to 
 upload to Neotoma.
@@ -97,14 +97,20 @@ for filename in filenames:
                                                 csv_file = csv_file,
                                                 uploader = uploader)
     logfile = logging_response(uploader['anunits'], logfile)
-    # logfile = logging_dict(uploader['anunits'], logfile)
+
+    logfile.append('\n === Inserting Lead Models ===')
+    uploader['pbmodel'] = nu.insert_pbmodel(cur = cur,
+                                            yml_dict = yml_dict,
+                                            csv_file = csv_file,
+                                            uploader = uploader)
+    logfile = logging_response(uploader['pbmodel'], logfile)
 
     logfile.append('\n=== Inserting Chronology ===')
     # Placeholders exist
     uploader['chronology'] = nu.insert_chronology(cur = cur,
-                                                yml_dict = yml_dict,
-                                                csv_file = csv_file,
-                                                uploader = uploader)
+                                                  yml_dict = yml_dict,
+                                                  csv_file = csv_file,
+                                                  uploader = uploader)
     logfile = logging_response(uploader['chronology'], logfile)
 #    logfile = logging_dict(uploader['chronology'], logfile)
     
@@ -144,39 +150,39 @@ for filename in filenames:
                                                         uploader = uploader)
     logfile = logging_response(uploader['repository'], logfile)
 
-    # logfile.append('\n=== Inserting Dataset Database ===')
-    # uploader['database'] = nu.insert_dataset_database(cur = cur,
-    #                                                 yml_dict = yml_dict,
-    #                                                 uploader = uploader)
-    # logfile = logging_dict(uploader['database'], logfile)
+    logfile.append('\n=== Inserting Dataset Database ===')
+    uploader['database'] = nu.insert_dataset_database(cur = cur,
+                                                    yml_dict = yml_dict,
+                                                    uploader = uploader)
+    logfile = logging_response(uploader['database'], logfile)
 
-    # logfile.append('\n=== Inserting Samples ===')
-    # uploader['samples'] = nu.insert_sample(cur, 
-    #                                     yml_dict = yml_dict,
-    #                                     csv_file = csv_file,
-    #                                     uploader = uploader)
-    # logfile = logging_dict(uploader['samples'], logfile)
+    logfile.append('\n=== Inserting Samples ===')
+    uploader['samples'] = nu.insert_sample(cur, 
+                                        yml_dict = yml_dict,
+                                        csv_file = csv_file,
+                                        uploader = uploader)
+    logfile = logging_response(uploader['samples'], logfile)
 
-    # logfile.append('\n=== Inserting Sample Analyst ===')
-    # uploader['sampleAnalyst'] = nu.insert_sample_analyst(cur, 
-    #                                     yml_dict = yml_dict,
-    #                                     csv_file = csv_file,
-    #                                     uploader = uploader)
-    # logfile = logging_dict(uploader['sampleAnalyst'], logfile)
+    logfile.append('\n=== Inserting Sample Analyst ===')
+    uploader['sampleAnalyst'] = nu.insert_sample_analyst(cur, 
+                                        yml_dict = yml_dict,
+                                        csv_file = csv_file,
+                                        uploader = uploader)
+    logfile = logging_response(uploader['sampleAnalyst'], logfile)
 
-    # logfile.append('\n === Inserting Sample Age ===')
-    # uploader['sampleAge'] = nu.insert_sample_age(cur, 
-    #                                     yml_dict = yml_dict,
-    #                                     csv_file = csv_file,
-    #                                     uploader = uploader)
-    # logfile = logging_dict(uploader['sampleAge'], logfile)
+    logfile.append('\n === Inserting Sample Age ===')
+    uploader['sampleAge'] = nu.insert_sample_age(cur, 
+                                        yml_dict = yml_dict,
+                                        csv_file = csv_file,
+                                        uploader = uploader)
+    logfile = logging_response(uploader['sampleAge'], logfile)
 
-    # logfile.append('\n === Inserting Data ===')
-    # uploader['data'] = nu.insert_data(cur, 
-    #                                 yml_dict = yml_dict,
-    #                                 csv_file = csv_file,
-    #                                 uploader = uploader)
-    # logfile = logging_dict(uploader['data'], logfile)
+    logfile.append('\n === Inserting Data ===')
+    uploader['data'] = nu.insert_data(cur, 
+                                    yml_dict = yml_dict,
+                                    csv_file = csv_file,
+                                    uploader = uploader)
+    logfile = logging_response(uploader['data'], logfile)
 
     # # logfile.append('\n === Inserting Uncertainties ===')
     # # uploader['uncertainties'] = nu.insert_data_uncertainties(cur, 

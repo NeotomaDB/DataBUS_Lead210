@@ -85,6 +85,15 @@ for filename in filenames:
                                                           csv_file = csv_file)
         logfile = logging_response(validator['analysisunit'], logfile)
 
+        # add valid/insert to ndb.leadmodels
+        logfile.append('\n === Checking Against Lead Models ===')
+        validator['pbmodel'] = nv.valid_pbmodel(cur = cur,
+                                                yml_dict = yml_dict,
+                                                     csv_file = csv_file,
+                                                     validator = validator)
+        logfile = logging_response(validator['pbmodel'], logfile)
+
+
         logfile.append('\n === Checking Chronologies ===')
         validator['chronologies'] = nv.valid_chronologies(cur = cur,
                                                           yml_dict = yml_dict,
@@ -122,21 +131,38 @@ for filename in filenames:
         logfile = logging_response(validator['repository'], logfile)
 
         logfile.append('\n=== Validating Dataset Database ===')
-        validator['database'] = nv.insert_dataset_database(cur = cur,
-                                                        yml_dict = yml_dict,
-                                                        validator = validator)
-        logfile = logging_dict(validator['database'], logfile)
+        validator['database'] = nv.valid_dataset_database(cur = cur,
+                                                        yml_dict = yml_dict)
+        logfile = logging_response(validator['database'], logfile)
+
+        logfile.append('\n=== Validating Samples ===')
+        validator['sample'] = nv.valid_sample(cur = cur,
+                                              yml_dict = yml_dict,
+                                              csv_file = csv_file,
+                                              validator = validator)
+        logfile = logging_response(validator['sample'], logfile)
+
+        logfile.append('\n=== Validating Sample Ages ===')
+        validator['sample_age'] = nv.valid_sample(cur = cur,
+                                              yml_dict = yml_dict,
+                                              csv_file = csv_file,
+                                              validator = validator)
+        logfile = logging_response(validator['sample_age'], logfile)
 
         logfile.append('\n === Validating Taxa Names ===')
-        validator['taxa'] = nv.valid_taxa(cur,
-                                          csv_file,
-                                          yml_dict)
-        logfile = logging_dict(validator['taxa'], logfile)
+        validator['taxa'] = nv.valid_data(cur = cur,
+                                              yml_dict = yml_dict,
+                                              csv_file = csv_file,
+                                              validator = validator)
+        logfile = logging_response(validator['taxa'], logfile)
 
-        #TODO: Validate datauncertainties
+        #TODO: Validate ndb.datauncertainties
+        validator['datauncertainty'] = nv.valid_datauncertainty(cur = cur,
+                                              yml_dict = yml_dict,
+                                              csv_file = csv_file,
+                                              validator = validator)
+        logfile = logging_response(validator['datauncertainty'], logfile)
 
-        #TODO: validate uncertaintybases
-     
         ########### Write to log.
         modified_filename = f'{filename}'.replace('data/', 'data/validation_logs/')
         modified_filename = Path(modified_filename + '.valid.log')
