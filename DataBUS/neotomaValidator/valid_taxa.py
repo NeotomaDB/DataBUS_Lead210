@@ -1,4 +1,5 @@
-from DataBUS.neotomaHelpers.pull_params import pull_params
+import DataBUS.neotomaHelpers as nh
+from DataBUS import Datum, Response
 
 def valid_taxa(cur, csv_template, yml_dict):
     """_Get taxa content from Neotoma_
@@ -8,13 +9,15 @@ def valid_taxa(cur, csv_template, yml_dict):
         csv_template (_string_): _A taxa name._
         yml_dict (_dict_): _The dictionary object passed by yml_to_dict._
     """
-    
-    response = { 'valid': False, 'message': [] }
+
+    response = Response()
     
     params = ['value']
-    taxa_dict = pull_params(params, yml_dict, csv_template, 'ndb.data')
+    taxa_dict = nh.pull_params(params, yml_dict, csv_template, 'ndb.data')
+    print(taxa_dict)
     params2 = ['variableelementid', 'variablecontextid']
-    inputs2 = pull_params(params2, yml_dict, csv_template, 'ndb.data')
+    inputs2 = nh.pull_params(params2, yml_dict, csv_template, 'ndb.data')
+    print(inputs2)
 
     for element in taxa_dict:
         response['message'].append(f"  === Checking Against Taxa {element['taxonname']} ===")

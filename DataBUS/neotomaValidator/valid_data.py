@@ -1,27 +1,30 @@
 import DataBUS.neotomaHelpers as nh
 from DataBUS import Response, Datum, Variable
 
-def insert_data(cur, yml_dict, csv_file, uploader):
+def valid_data(cur, yml_dict, csv_file, validator):
     """"""
     response = Response()
     
     params = ['value']
     inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.data')
+    uncertainty_d = []
     
     params2 = ['variableelementid', 'variablecontextid']
     inputs2 = nh.clean_inputs(nh.pull_params(params2, yml_dict, csv_file, 'ndb.data'))
-    inputs2 = {p: [None] * len(uploader['samples'].sampleid) 
+    inputs2 = {p: [None] * validator['sample'].sa_counter
                if inputs2[p] is None else inputs2[p] for p in params2}
 
-    for i in range(len(uploader['samples'].sampleid)):
-        counter = 0
-        for val_dict in inputs:
+    for val_dict in inputs: # for sample
+        data_counter = 0
+        for i in range(validator['sample'].sa_counter):
+            counter = 0
             get_taxonid = """SELECT * FROM ndb.taxa WHERE LOWER(taxonname) = %(taxonname)s;"""
             cur.execute(get_taxonid, {'taxonname': val_dict['taxonname'].lower()})
             taxonid = cur.fetchone()
             
             if taxonid:
                 taxonid = int(taxonid[0])
+                response.message.append(f"✔ Taxon ID {taxonid} found.")
             else:
                 counter +=1
                 taxonid = counter # To do temporary taxon
@@ -30,15 +33,14 @@ def insert_data(cur, yml_dict, csv_file, uploader):
                 response.valid.append(False)
             
             val_dict['value'] = [None if item == 'NA' else item for item in val_dict['value']]
-             
+                
             # Get UnitsID
             get_vunitsid = """SELECT variableunitsid FROM ndb.variableunits 
-                             WHERE LOWER(variableunits) = %(units)s;"""
+                                WHERE LOWER(variableunits) = %(units)s;"""
             cur.execute(get_vunitsid, {'units': val_dict['unitcolumn'][i].lower()})
-            vunitsid = cur.fetchone()[0] # This is just getting the varunitsid
+            vunitsid = cur.fetchone() # This is to get varunitsid
             counter2 = 0
             if vunitsid:
-                vunitsid = int(vunitsid)
                 response.message.append(f"✔ Units ID {vunitsid} found.")
             else:
                 counter2 += 1
@@ -50,15 +52,15 @@ def insert_data(cur, yml_dict, csv_file, uploader):
 
             try:
                 var = Variable(variableunitsid = vunitsid,
-                               taxonid = taxonid,
-                               variableelementid = inputs2['variableelementid'][i],
-                               variablecontextid = inputs2['variablecontextid'][i])
+                                taxonid = taxonid,
+                                variableelementid = inputs2['variableelementid'][i],
+                                variablecontextid = inputs2['variablecontextid'][i])
                 response.valid.append(True)
             except Exception as e:
                 var = Variable(variableunitsid = vunitsid,
-                               taxonid = taxonid,
-                               variableelementid = None,
-                               variablecontextid = None)
+                                taxonid = taxonid,
+                                variableelementid = None,
+                                variablecontextid = None)
                 response.valid.append(False)
                 response.message.append(f"✗  Variable cannot be created: {e}")
             finally:
@@ -68,38 +70,41 @@ def insert_data(cur, yml_dict, csv_file, uploader):
                 except Exception as e:
                     response.valid.append(False)
                     response.message.append(f"✗  Var ID cannot be retrieved from db: {e}")
-                    varid = None 
-            
+                    varid = None
             if varid:
                 varid = varid[0]
                 response.valid.append(True)
                 response.message.append(f"✔ Var ID {varid} found.")
             else:
-                response.message.append("? Var ID not found. Executing ts.insertvariable")
-                varid = var.insert_to_db(cur)
+                try:
+                    varid = var.insert_to_db(cur)
+                    response.message.append(f"? Var ID not found. "
+                                            f"ts.insertvariable new ID: {varid}")
+                    response.valid.append(True)
+                except Exception as e:
+                    response.valid.append(False)
+                    response.message.append(f"✗ Cannot insert Var ID")
+                    varid = 1 # error placeholder
+                    
+            #### Where the datum stuff begins
+            
 
             try:
-                datum = Datum(sampleid = int(uploader['samples'].sampleid[i]),
-                              variableid = int(varid),
-                              value = val_dict['value'][i])
+                Datum(sampleid = int(i),
+                      variableid = int(varid),
+                      value = val_dict['value'][i])
                 response.valid.append(True)
+                (f"✔  Datum can be created.")
             except Exception as e:
                 response.valid.append(False)
                 response.message.append(f"✗  Datum cannot be created: {e}")
-                datum = Datum(sampleid = int(uploader['samples'].sampleid[i]),
-                              variableid = None, 
-                              value = None)
             finally:
-                try:
-                    d_id = datum.insert_to_db(cur)
-                    response.data_id.append(d_id)
-                    response.valid.append(True)
-                    response.message.append(f"✔ Datum inserted {d_id}")
-                except Exception as e:
-                    response.valid.append(False)
-                    response.message.append(f"✗  Datum cannot be inserted: {e}")
-                    d_id = 2
-                    response.data_id.append(d_id)
+                if 'uncertainty' in val_dict:
+                    data_counter +=1
+        if 'uncertainty' in val_dict:
+            uncertainty_d.append(data_counter)
 
     response.validAll = all(response.valid)
+    response.uncertainty_inputs = uncertainty_d
+
     return response 

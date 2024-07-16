@@ -35,7 +35,6 @@ def insert_chronology(cur, yml_dict, csv_file, uploader):
         inputs['agetypeid'] = 1
     else:
         inputs['agetypeid'] = None
-        
     if isinstance(inputs['contactid'], list):
         get_contact = """SELECT contactid FROM ndb.contacts WHERE LOWER(%(contactname)s) = contactname;"""    
         cur.execute(get_contact, {'contactname': inputs['contactid'][0]})
@@ -73,7 +72,6 @@ def insert_chronology(cur, yml_dict, csv_file, uploader):
         response.message.append(f"✔ Adding Chronology {chronid}.")
 
     except Exception as e:
-        print(e)
         response.message.append(f"Chronology Data is not correct. Error message: {e}")
         chron = Chronology(collectionunitid = uploader['collunitid'].cuid,
                            agetypeid=1)

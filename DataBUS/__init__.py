@@ -19,3 +19,7 @@ from .Repository import Repository
 from .DatasetDatabase import DatasetDatabase
 from .Sample import Sample
 from .SampleAge import SampleAge
+from .Datum import Datum
+from .Variable import Variable
+from .LeadModel import LeadModel
+from .DataUncertainty import DataUncertainty

@@ -49,13 +49,23 @@ def pull_params(params, yml_dict, csv_template, table=None):
                         clean_valor2 = clean_column(val.get('unitcolumn'),
                                                 csv_template,
                                                 clean = not val.get('rowwise'))
+                        clean_valor2 = [value if value != 'NA' else None for value in clean_valor2]
                         add_unit_inputs['unitcolumn'] = clean_valor2
                 
                     if 'uncertainty' in val.keys():
                         clean_valor3 = clean_column(val['uncertainty']['uncertaintycolumn'],
                                                     csv_template,
                                                     clean = not val.get('rowwise'))
+                        #clean_valor3 = [float(value) if value != 'NA' else None for value in clean_valor3]
                         add_unit_inputs['uncertainty'] = clean_valor3
+                        if 'uncertaintybasis' in val['uncertainty'].keys():
+                            add_unit_inputs['uncertaintybasis'] = val['uncertainty']['uncertaintybasis']
+                        if 'notes' in val['uncertainty'].keys():
+                            add_unit_inputs['uncertaintybasis_notes'] = val['uncertainty']['notes']
+                        else:
+                            add_unit_inputs['uncertaintybasis_notes'] = None
+
+
                     
                     samples_dict = add_unit_inputs.copy()
                     samples_dict['name'] = val.get('column')
@@ -75,5 +85,3 @@ def pull_params(params, yml_dict, csv_template, table=None):
         for item in table:
             results.append(pull_params(params, yml_dict, csv_template, item))
         return results
-            
-    

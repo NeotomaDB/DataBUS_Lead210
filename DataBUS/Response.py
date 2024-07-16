@@ -9,6 +9,7 @@ class Response:
         self.repoid = None
         self.databaseid = None
         self.sampleid = []
+        self.data_id = []
     
     def __str__(self):
         new_msg = "\n".join(str(m) for m in self.message)

@@ -1,5 +1,4 @@
 from .Geog import Geog, WrongCoordinates
-
 class Site:
     description = "Site object in Neotoma"
     def __init__(self, siteid = None, sitename = 'None', altitude = None,
