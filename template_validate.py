@@ -156,7 +156,6 @@ for filename in filenames:
                                               validator = validator)
         logfile = logging_response(validator['taxa'], logfile)
 
-        #TODO: Validate ndb.datauncertainties
         validator['datauncertainty'] = nv.valid_datauncertainty(cur = cur,
                                               yml_dict = yml_dict,
                                               csv_file = csv_file,

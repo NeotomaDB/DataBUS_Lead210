@@ -184,12 +184,12 @@ for filename in filenames:
                                     uploader = uploader)
     logfile = logging_response(uploader['data'], logfile)
 
-    # # logfile.append('\n === Inserting Uncertainties ===')
-    # # uploader['uncertainties'] = nu.insert_data_uncertainties(cur, 
-    # #                                 yml_dict = yml_dict,
-    # #                                 csv_file = csv_file,
-    # #                                 uploader = uploader)
-    # # logfile = logging_dict(uploader['uncertainties'], logfile)
+    logfile.append('\n === Inserting Uncertainties ===')
+    uploader['uncertainties'] = nu.insert_datauncertainty(cur, 
+                                    yml_dict = yml_dict,
+                                    csv_file = csv_file,
+                                    uploader = uploader)
+    logfile = logging_response(uploader['uncertainties'], logfile)
 
     modified_filename = filename.replace('data/', 'data/upload_logs/')
     with open(modified_filename + '.upload.log', 'w', encoding = "utf-8") as writer:
