@@ -22,5 +22,5 @@ from .insert_sample import insert_sample
 from .insert_sample_analyst import insert_sample_analyst
 from .insert_data import insert_data
 from .insert_sample_age import insert_sample_age
-from .insert_data_uncertainties import insert_data_uncertainties
+from .insert_datauncertainty import insert_datauncertainty
 from .insert_pbmodel import insert_pbmodel

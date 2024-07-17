@@ -13,9 +13,15 @@ def insert_data(cur, yml_dict, csv_file, uploader):
     inputs2 = {p: [None] * len(uploader['samples'].sampleid) 
                if inputs2[p] is None else inputs2[p] for p in params2}
 
-    for i in range(len(uploader['samples'].sampleid)):
+    data_id = []
+    counter_ =0
+    uncertainty_d = []
+    for val_dict in inputs:
+        data_id_u = []
+        var_id = []
         counter = 0
-        for val_dict in inputs:
+        for i in range(len(uploader['samples'].sampleid)):
+            counter_ +=1
             get_taxonid = """SELECT * FROM ndb.taxa WHERE LOWER(taxonname) = %(taxonname)s;"""
             cur.execute(get_taxonid, {'taxonname': val_dict['taxonname'].lower()})
             taxonid = cur.fetchone()
@@ -86,20 +92,26 @@ def insert_data(cur, yml_dict, csv_file, uploader):
             except Exception as e:
                 response.valid.append(False)
                 response.message.append(f"✗  Datum cannot be created: {e}")
+                varid = None
                 datum = Datum(sampleid = int(uploader['samples'].sampleid[i]),
-                              variableid = None, 
+                              variableid = varid, 
                               value = None)
             finally:
+                var_id.append(varid)
                 try:
                     d_id = datum.insert_to_db(cur)
-                    response.data_id.append(d_id)
                     response.valid.append(True)
                     response.message.append(f"✔ Datum inserted {d_id}")
                 except Exception as e:
                     response.valid.append(False)
                     response.message.append(f"✗  Datum cannot be inserted: {e}")
                     d_id = 2
+                finally:
                     response.data_id.append(d_id)
-
+                    data_id_u.append(d_id)
+        if 'uncertainty' in val_dict:
+            response.uncertaintyinputs.append({'varid':var_id, 'dataid': data_id_u})
+    
+    
     response.validAll = all(response.valid)
     return response 
