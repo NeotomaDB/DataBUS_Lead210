@@ -29,7 +29,7 @@ def insert_data_processor(cur, yml_dict, csv_file, uploader):
         try:
             agent = Contact(contactid = contact['id'])
             response.valid.append(True)
-            response.message.append(f"✔ Processor object {contact['id']} created.")
+            response.message.append(f"✔ Added Processor object {contact['id']}.")
         except Exception as e:
             agent = Contact(contactid = 1)
             response.valid.append(False)

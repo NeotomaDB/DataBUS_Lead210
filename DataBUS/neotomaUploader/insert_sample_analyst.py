@@ -29,8 +29,6 @@ def insert_sample_analyst(cur, yml_dict, csv_file, uploader):
                 agent = Contact(contactid = int(contact['id']),
                                 order = int(contact['order']))
                 response.valid.append(True)
-                response.message.append(f"✔  Created Sample Analyst {contact['id']} "
-                                        f"for sample {uploader['samples'].sampleid[i]}.")
             except Exception as e:
                 agent = Contact(contactid=contact['id']),
                 response.message.append(f"✗ Sample Analyst data is not correct. {e}")
@@ -39,8 +37,8 @@ def insert_sample_analyst(cur, yml_dict, csv_file, uploader):
                 try:
                     agent.insert_sample_analyst(cur, sampleid=int(uploader['samples'].sampleid[i]))
                     response.valid.append(True)
-                    response.message.append(f"✔  Sample Analyst {contact['id']} added"
-                                               f"for sample {uploader['samples'].sampleid[i]}.")
+                    response.message.append(f"✔  Sample Analyst {contact['id']} added "
+                                            f"for sample {uploader['samples'].sampleid[i]}.")
                 except:
                     response.message.append(f"Executed temporary query.")
                     response.valid.append(False)

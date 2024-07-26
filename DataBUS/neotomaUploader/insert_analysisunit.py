@@ -36,15 +36,15 @@ def insert_analysisunit(cur, yml_dict, csv_file, uploader):
                              recdatecreated = inputs['recdatecreated'][i], 
                              recdatemodified = inputs['recdatemodified'][i])
         except Exception as e:
-            response.message.append(f"Could not create Analysis Unit, "
+            response.message.append(f"✗ Could not create Analysis Unit, "
                                     f"verify entries: \n {e}")
             au = AnalysisUnit(collectionunitid = uploader['collunitid'].cuid, mixed=False)
         try:
             auid = au.insert_to_db(cur)
-            response.message.append(f"✔ Adding Analysis Unit {auid}.")
+            response.message.append(f"✔ Added Analysis Unit {auid}.")
             response.valid.append(True)
         except Exception as e:
-            response.message.append(f"Analysis Unit Data is not correct. Error message: {e}")
+            response.message.append(f"✗ Analysis Unit Data is not correct. Error message: {e}")
             au = AnalysisUnit(collectionunitid = uploader['collunitid'].cuid)
             auid = au.insert_to_db(cur)
             response.message.append(f"✗ Adding temporary Analysis Unit {auid} to continue process." 

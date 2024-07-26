@@ -34,7 +34,7 @@ def insert_chron_control(cur, yml_dict, csv_file, uploader):
     agetype = agetype[0]
 
     assert len(uploader['anunits'].auid) == len(inputs_age['age']) == len(inputs['thickness']), \
-           "The number of analysis units, ages, and thicknesses is not the same. Please check."
+           "✗ The number of analysis units, ages, and thicknesses is not the same. Please check."
 
     if inputs['agetype'] == 'cal yr BP':
         inputs['agetypeid'] = 2
@@ -73,15 +73,14 @@ def insert_chron_control(cur, yml_dict, csv_file, uploader):
             ccid = cc.insert_to_db(cur)
             response.ccid.append(ccid)
             response.valid.append(True)
-            response.message.append(f"✔ Adding Chron Control {ccid}.")
+            response.message.append(f"✔ Added Chron Control {ccid}.")
 
         except Exception as e:
-            response.message.append(f"Chron Control Data is not correct. Error message: {e}")
+            response.message.append(f"✗  Chron Control Data is not correct. Error message: {e}")
             cc = ChronControl(chronologyid= int(uploader['chronology'].chronid),
                               analysisunitid= int(uploader['anunits'].auid[i]))
             ccid = cc.insert_to_db(cur)
             response.ccid.append(ccid)
-            response.message.append(f"✗ Adding temporary chron controls {ccid}.")
             response.valid.append(False)
     response.valid = all(response.valid)
     return response

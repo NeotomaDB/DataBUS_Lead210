@@ -56,7 +56,7 @@ def insert_chronology(cur, yml_dict, csv_file, uploader):
         response.valid.append(True)
     except Exception as e:
         response.valid.append(False)
-        response.message.append("Chronology cannot be created {e}")
+        response.message.append("✗  Chronology cannot be created {e}")
         chron = Chronology(collectionunitid = uploader['collunitid'].cuid)
 
     if isinstance(inputs_age['age'], (int, float)):
@@ -69,14 +69,13 @@ def insert_chronology(cur, yml_dict, csv_file, uploader):
         chronid = chron.insert_to_db(cur)
         response.chronid = chronid
         response.valid.append(True)
-        response.message.append(f"✔ Adding Chronology {chronid}.")
+        response.message.append(f"✔ Added Chronology {chronid}.")
 
     except Exception as e:
-        response.message.append(f"Chronology Data is not correct. Error message: {e}")
+        response.message.append(f"✗  Chronology Data is not correct. Error message: {e}")
         chron = Chronology(collectionunitid = uploader['collunitid'].cuid,
                            agetypeid=1)
         chronid = chron.insert_to_db(cur)
         response.valid.append(False)
-        response.message.append(f"✗ Adding temporary Chronology {chron}.")
     response.validAll = all(response.valid)
     return response

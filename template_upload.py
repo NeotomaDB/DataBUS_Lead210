@@ -59,9 +59,7 @@ for filename in filenames:
     else:
         csv_file = nh.read_csv(filename)
         uploader['hashcheck']['valid'] = True
-        # This possibly needs to be fixed. How do we know that there is one or more header rows?
-
- 
+        
     yml_dict = nh.template_to_dict(temp_file=args['template'])
     yml_data = yml_dict['metadata']
 
@@ -112,7 +110,6 @@ for filename in filenames:
                                                   csv_file = csv_file,
                                                   uploader = uploader)
     logfile = logging_response(uploader['chronology'], logfile)
-#    logfile = logging_dict(uploader['chronology'], logfile)
     
     logfile.append('\n=== Inserting Chroncontrol ===')
     uploader['chroncontrol'] = nu.insert_chron_control(cur = cur,
@@ -122,7 +119,6 @@ for filename in filenames:
     logfile = logging_response(uploader['chroncontrol'], logfile)
 
     logfile.append('\n=== Inserting Dataset ===')
-    # Placeholders exist
     uploader['datasetid'] = nu.insert_dataset(cur = cur,
                                             yml_dict = yml_dict,
                                             csv_file = csv_file,

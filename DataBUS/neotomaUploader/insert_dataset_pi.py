@@ -27,7 +27,6 @@ def insert_dataset_pi(cur, yml_dict, csv_file, uploader):
             contact = Contact(contactid = int(agent['id']),
                               order = int(agent['order']))
             response.valid.append(True)
-            response.message.append(f"✔ Created PI {agent['id']}.")
         except Exception as e:
             contact = Contact(contactid = None,
                               order = None)

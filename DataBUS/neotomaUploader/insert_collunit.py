@@ -58,13 +58,13 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
                             notes = inputs['notes'],
                             geog = geog)
         response.valid.append(True)
-        response.message.append('Collection Unit created')
+        response.message.append('✔  Added Collection Unit')
     except Exception as e: #  be more informative
         cu = CollectionUnit(siteid = uploader['sites'].siteid,
                             handle = "Pholder",
                             geog = geog)
         response.valid.append(False)
-        response.message.append("CU cannot be created")
+        response.message.append("✗ CU cannot be created")
     if cu.handle:
         cur.execute("""SELECT * FROM ndb.collectionunits WHERE LOWER(handle) = %(handle)s""", 
                     {'handle': cu.handle.lower()})
@@ -93,7 +93,7 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
                                           notes = str(coll_info[17]))
             except Exception as e: # more comments
                 response.valid.append(False)
-                response.message.append(f"Cannot create Unit from Neotoma Data")
+                response.message.append(f"✗ Cannot create Collection Unit from Neotoma Data")
             updated_cu = cu.update_collunit(found_cu, overwrite, response) 
             updated_cu.collectionunitid = found_cu.collectionunitid
             response.culist.append({'original site': f"{cu}", 
@@ -106,9 +106,9 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
                                         'updated_params': updated_cu}) 
             except Exception as e:
                 response.valid.append(False)
-                response.message.append(f"Could not upsert site: {e}")
+                response.message.append(f"✗  Could not upsert site: {e}")
         elif len(coll_info) == 0:
-            response.message.append(f"Collunit not found")
+            response.message.append(f"? Collunit not found")
             if overwrite['handle'] == True:
                 response.valid.append(True)
                 response.message.append(f"✔  Overwrite is set to True."
@@ -123,7 +123,7 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
             response.cuid = cu.insert_to_db(cur)
             response.culist.append(cu)
     else:
-        response.message.append("Handle not given")
+        response.message.append("? Handle not given")
         cu.siteid = uploader['sites'].siteid
         try:
             cur.execute("SAVEPOINT before_try")

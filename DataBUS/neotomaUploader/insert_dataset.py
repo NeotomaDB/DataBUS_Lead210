@@ -44,9 +44,7 @@ def insert_dataset(cur, yml_dict, csv_file, uploader):
                      collectionunitid = uploader['collunitid'].cuid,
                      datasetname = inputs['datasetname'],
                      notes = inputs['notes'])
-        
         response.valid.append(True)
-        response.message.append("✔ Dataset was created.")
     except Exception as e:
         print(e)
         response.valid.append(False)
@@ -57,11 +55,11 @@ def insert_dataset(cur, yml_dict, csv_file, uploader):
         try:
             response.datasetid = ds.insert_to_db(cur)
             response.valid.append(True)
-            response.message.append(f"✔ Dataset {response.datasetid} added to Neotoma.")
+            response.message.append(f"✔ Added Dataset {response.datasetid}.")
         except Exception as e:
             response.datasetid = ds.insert_to_db(cur)
             response.valid.append(True)
-            response.message.append(f"✗ Dataset {response.datasetid} was not added to Neotoma."
+            response.message.append(f"✗ Cannot add Dataset {response.datasetid}."
                                     f"Using temporary ID.")
     response.validAll = all(response.valid)
     return response 

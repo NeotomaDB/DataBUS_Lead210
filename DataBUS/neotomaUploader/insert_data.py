@@ -101,7 +101,7 @@ def insert_data(cur, yml_dict, csv_file, uploader):
                 try:
                     d_id = datum.insert_to_db(cur)
                     response.valid.append(True)
-                    response.message.append(f"✔ Datum inserted {d_id}")
+                    response.message.append(f"✔ Added Datum {d_id}")
                 except Exception as e:
                     response.valid.append(False)
                     response.message.append(f"✗  Datum cannot be inserted: {e}")

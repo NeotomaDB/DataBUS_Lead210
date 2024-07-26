@@ -13,7 +13,6 @@ def insert_dataset_repository(cur, yml_dict, csv_file, uploader):
             repo = Repository(datasetid = uploader['datasetid'].datasetid,
                               repositoryid=inputs['repo'],
                               notes = inputs['notes'])
-            response.message.append(f"✔ Repository can be created.")
             response.valid.append(True)
         except Exception as e:
             repo = Repository(datasetid = uploader['datasetid'].datasetid,

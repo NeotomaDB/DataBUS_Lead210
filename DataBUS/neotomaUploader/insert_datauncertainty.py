@@ -47,7 +47,6 @@ def insert_datauncertainty(cur, yml_dict, csv_file, uploader):
                                      uncertaintybasisid = uncertainty['uncertaintybasisid'], # Need to get from leadmodels
                                      notes = uncertainty['uncertaintybasis_notes'])
                 response.valid.append(True)
-                response.message.append(f"✔  Data Uncertainty can be created")
             except Exception as e:
                 response.valid.append(False)
                 response.message.append(f"✗ Data Uncertainty cannot be created: {e}")
@@ -57,9 +56,9 @@ def insert_datauncertainty(cur, yml_dict, csv_file, uploader):
                 try:
                     du.insert_to_db(cur)
                     response.valid.append(True)
-                    response.message.append(f"✔  Data Uncertainty inserted")
+                    response.message.append(f"✔ Added Data Uncertainty.")
                 except Exception as e:
                     response.valid.append(False)
-                    response.message.append(f"✗ Data Uncertainty not inserted: {e}")
+                    response.message.append(f"✗ Cannot add Data Uncertainty: {e}")
     response.validAll = all(response.valid)
     return response 

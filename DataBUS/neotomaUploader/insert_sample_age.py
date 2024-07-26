@@ -46,9 +46,9 @@ def insert_sample_age(cur, yml_dict, csv_file, uploader):
             try:
                 sa_id = sa.insert_to_db(cur)
                 response.valid.append(True)
-                response.message.append(f"✔ Adding sample age {sa_id} for sample {uploader['samples'].sampleid[i]}")
+                response.message.append(f"✔ Added sample age {sa_id} for sample {uploader['samples'].sampleid[i]}")
             except Exception as e:
-                response.message.append(f"✗ Samples Age cannot be added. {e}")
+                response.message.append(f"✗ Cannot add Samples Age: {e}")
                 response.valid.append(False)
     
     response.valid = all(response.valid)
