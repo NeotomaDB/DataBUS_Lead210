@@ -17,16 +17,26 @@ def insert_dataset_database(cur, yml_dict, uploader):
     """
     response = Response()
 
-    db_name = nh.retrieve_dict(yml_dict, 'ndb.datasetdatabases.databaseid')
-    inputs = {'databaseid': db_name[0]['value']}
+    db_name = nh.retrieve_dict(yml_dict, 'ndb.datasetdatabases.databasename')
+    inputs = {'databasename': db_name[0]['value']}
 
+    # Find databasename:
+    query = """SELECT databaseid from ndb.constituentdatabases
+                WHERE LOWER(databasename) LIKE %(databasename)s"""
+    cur.execute(query, {'databasename': f"%{inputs['databasename'].lower()}%"})
+    inputs['databaseid'] = cur.fetchone()
+    if inputs['databaseid']:
+        inputs['databaseid'] = inputs['databaseid'][0]
     try:
         db = DatasetDatabase(datasetid = int(uploader['datasetid'].datasetid), 
-                        databaseid = int(inputs['databaseid']))
+                             databaseid = int(inputs['databaseid']))
         response.valid.append(True)
         response.message.append(f"✔ Database ID {inputs['databaseid']} created.")
     except Exception as e:
-        db = DatasetDatabase(datasetid = int(uploader['datasetid'].datasetid))
+        print("not properly created")
+        print(e)
+        db = DatasetDatabase(datasetid = int(uploader['datasetid'].datasetid),
+                             databaseid=None)
         response.message.append(f"✗ Database information is not correct. {e}")
         response.valid.append(False)
     finally:

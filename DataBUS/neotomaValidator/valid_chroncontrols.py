@@ -11,7 +11,6 @@ def valid_chroncontrols(yml_dict, csv_file):
     inputs_age = nh.clean_inputs(nh.pull_params(['age'], yml_dict, csv_file, 'ndb.sampleages'))
     agetype = list(set(inputs_age['unitcolumn']))
     inputs['agetype'] = agetype[0]
-
     if inputs['agetype'] == 'cal yr BP':
         inputs['agetypeid'] = 2
         response.message.append("✔ The provided age type is correct.")
@@ -24,7 +23,7 @@ def valid_chroncontrols(yml_dict, csv_file):
         response.message.append("✗ The provided age type is incorrect..")
         response.valid.append(False)
         inputs['agetypeid'] = None
-    inputs_age['age'] = [float(value) if value != 'NA' else None for value in inputs_age['age']]
+    #inputs_age['age'] = [float(value) if value != 'NA' else None for value in inputs_age['age']]
     inputs_age['uncertainty'] = [float(value) if value != 'NA' else None for value in inputs_age['uncertainty']]
 
     if len(inputs['depth']) == len(inputs_age['age']) == len(inputs['thickness']):
@@ -57,9 +56,9 @@ def valid_chroncontrols(yml_dict, csv_file):
                               notes = inputs['notes'],
                               agetypeid = inputs['agetypeid'])
             response.valid.append(True)
-            response.message.append(f"Can create chron control")
+            response.message.append(f"✔  Chron control can be created")
         except Exception as e:
-            response.message.append(f"Could not do chron control {e}")
+            response.message.append(f"✗  Could not do chron control {e}")
             response.valid.append(False)
     response.validAll = all(response.valid)
     return response

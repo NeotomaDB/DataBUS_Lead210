@@ -78,7 +78,11 @@ def valid_data(cur, yml_dict, csv_file, validator):
             else:
                 try:
                     varid = var.insert_to_db(cur)
-                    response.message.append(f"? Var ID not found. "
+                    response.message.append(f"? Var ID not found for: "
+                                            f"variableunitsid: {vunitsid[0]},\n"
+                                            f"taxon: {val_dict['taxonname'].lower()}, ID: {taxonid},\n"
+                                            f"variableelementid: {inputs2['variableelementid'][i]},"
+                                            f"variablecontextid: {inputs2['variablecontextid'][i]}\n"
                                             f"ts.insertvariable new ID: {varid}")
                     response.valid.append(True)
                 except Exception as e:
@@ -88,8 +92,10 @@ def valid_data(cur, yml_dict, csv_file, validator):
                     
             #### Where the datum stuff begins
             
-
             try:
+                # variableID is needed in Neotoma - we have to create 
+                # in validation so that we can guarantee that the 
+                # information to create Datum objects is possible.
                 Datum(sampleid = int(i),
                       variableid = int(varid),
                       value = val_dict['value'][i])

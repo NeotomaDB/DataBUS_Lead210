@@ -143,7 +143,7 @@ for filename in filenames:
         logfile = logging_response(validator['sample'], logfile)
 
         logfile.append('\n=== Validating Sample Ages ===')
-        validator['sample_age'] = nv.valid_sample(cur = cur,
+        validator['sample_age'] = nv.valid_sample_age(cur = cur,
                                               yml_dict = yml_dict,
                                               csv_file = csv_file,
                                               validator = validator)
@@ -162,6 +162,8 @@ for filename in filenames:
                                               validator = validator)
         logfile = logging_response(validator['datauncertainty'], logfile)
 
+        # Nothing needs to be committed to the database
+        conn.rollback()
         ########### Write to log.
         modified_filename = f'{filename}'.replace('data/', 'data/validation_logs/')
         modified_filename = Path(modified_filename + '.valid.log')

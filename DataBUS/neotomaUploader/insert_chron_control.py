@@ -28,7 +28,7 @@ def insert_chron_control(cur, yml_dict, csv_file, uploader):
     agetype = list(set(inputs_age['unitcolumn']))
     inputs['agetype'] = agetype[0]
 
-    inputs_age['age'] = [float(value) if value != 'NA' else None for value in inputs_age['age']]
+    #inputs_age['age'] = [float(value) if value != 'NA' else None for value in inputs_age['age']]
     inputs_age['uncertainty'] = [float(value) if value != 'NA' else None for value in inputs_age['uncertainty']]
     agetype = list(set(inputs_age['unitcolumn']))
     agetype = agetype[0]

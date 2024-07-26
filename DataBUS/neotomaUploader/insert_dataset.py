@@ -19,16 +19,25 @@ def insert_dataset(cur, yml_dict, csv_file, uploader):
     response = Response()
     
     inputs = {'datasetname': 
-              nh.retrieve_dict(yml_dict, 'ndb.datasets.datasetname')[0]['value'].lower(),
+              nh.retrieve_dict(yml_dict, 'ndb.datasets.datasetname'),
               'datasettypeid': 
               nh.retrieve_dict(yml_dict, 'ndb.datasettypes.datasettypeid')[0]['value'].lower()}
-    
+
+    if inputs['datasetname'] and isinstance(inputs['datasetname'],list):
+        if isinstance([inputs['datasetname'][0]], str):
+            inputs['datasetname'] = inputs['datasetname'][0]['value'].lower()
+    else:
+        inputs['datasetname'] = None
+     
     inputs['notes'] = nh.clean_inputs(nh.pull_params(['notes'], yml_dict, csv_file, 
                                                      'ndb.datasets'))['notes']
+    
     query = "SELECT datasettypeid FROM ndb.datasettypes WHERE LOWER(datasettype) = %(ds_type)s"
-    cur.execute(query,{'ds_type': inputs['datasettypeid'].lower()})
+    cur.execute(query,{'ds_type': f"{inputs['datasettypeid'].lower()}"})
+    inputs['datasettypeid'] = cur.fetchone()
+    
     if inputs['datasettypeid']:
-        inputs['datasettypeid'] = cur.fetchone()[0]
+        inputs['datasettypeid'] = inputs['datasettypeid'][0]
 
     try:
         ds = Dataset(datasettypeid = inputs['datasettypeid'],

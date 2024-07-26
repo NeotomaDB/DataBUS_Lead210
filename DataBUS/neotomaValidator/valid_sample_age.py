@@ -21,10 +21,10 @@ def valid_sample_age(cur, yml_dict, csv_file, validator):
     params = ['age']
     inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.sampleages')
 
-    inputs['age'] = [float(value) if value != 'NA' else None for value in inputs['age']]
+    #inputs['age'] = [float(value) if value != 'NA' else None for value in inputs['age']]
     inputs['uncertainty'] = [float(value) if value != 'NA' else None for value in inputs['uncertainty']]
 
-    for i in range(0, validator['sample'].sacounter):
+    for i in range(0, validator['sample'].sa_counter):
         if isinstance(inputs['age'][i], (int, float)):
             age_younger = inputs['age'][i]-inputs['uncertainty'][i]
             age_older = inputs['age'][i]+inputs['uncertainty'][i]
@@ -39,10 +39,10 @@ def valid_sample_age(cur, yml_dict, csv_file, validator):
                            ageyounger= age_younger, 
                            ageolder= age_older)
             response.valid.append(True)
-            response.message.append(f"✔ Sample age can be created.")
+            response.message.append(f"✔ Sample ages can be created.")
         except Exception as e:
             response.valid.append(False)
-            response.message.append(f"✗ Samples Age cannot be created. {e}")
+            response.message.append(f"✗ Samples ages cannot be created. {e}")
     
     response.valid = all(response.valid)
     return response

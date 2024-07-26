@@ -21,7 +21,7 @@ def insert_sample_age(cur, yml_dict, csv_file, uploader):
     params = ['age']
     inputs = nh.pull_params(params, yml_dict, csv_file, 'ndb.sampleages')
 
-    inputs['age'] = [float(value) if value != 'NA' else None for value in inputs['age']]
+    #inputs['age'] = [float(value) if value != 'NA' else None for value in inputs['age']]
     inputs['uncertainty'] = [float(value) if value != 'NA' else None for value in inputs['uncertainty']]
 
     for i in range(len(uploader['samples'].sampleid)):

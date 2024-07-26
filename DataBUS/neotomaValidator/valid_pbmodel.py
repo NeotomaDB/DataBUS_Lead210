@@ -21,9 +21,9 @@ def valid_pbmodel(cur, yml_dict, csv_file, validator):
                       analysisunitid = j,
                       cumulativeinventory = inputs['cumulativeinventory'][0])
             response.valid.append(True)
-            response.message.append(f" Lead Model object built.")
+            response.message.append(f"✔  Lead Model can be created.")
         except Exception as e:
             response.valid.append(False)
-            response.message.append(f"Lead model cannot be built: {e}")
+            response.message.append(f"✗  Lead model cannot be created: {e}")
     response.validAll = all(response.valid)          
     return response

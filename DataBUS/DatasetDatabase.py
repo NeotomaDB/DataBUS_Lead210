@@ -6,7 +6,9 @@ class DatasetDatabase:
             raise ValueError("Dataset ID must be an integer.")
         self.datasetid = datasetid
         if isinstance(databaseid, int) or databaseid is None:
-           self.repositoryid = databaseid 
+           self.databaseid = databaseid
+        else:
+            raise ValueError("DatabaseID must be an integer.")
  
     def insert_to_db(self, cur):
         db_query = """
@@ -15,7 +17,6 @@ class DatasetDatabase:
                """
         inputs = {'datasetid': self.datasetid,
                   'databaseid': self.databaseid}
-        print(inputs)
         cur.execute(db_query, inputs)
         return
 

@@ -23,7 +23,7 @@ def valid_csv(filename, yml_data):
     # Take directly from .yml file
     col_values = [d.get('column') for d in yml_data]
     # Remove specific columns from col_values as they are taken from the metadata in the xlsx template
-    columns_to_remove = ['databaseid', 'datasetname', 'datasettypeid', 'labnumber']
+    columns_to_remove = ['databaseid', 'databasename', 'datasettypeid', 'labnumber']
     col_values = [col for col in col_values if col not in columns_to_remove]
 
     if not os.path.isfile(filename):
