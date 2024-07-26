@@ -25,7 +25,7 @@ template file that has an .xlsx or .yml extension
 """
 
 load_dotenv()
-data = json.loads(os.getenv('PGDB_LOCAL'))
+data = json.loads(os.getenv('PGDB_TANK'))
 
 conn = psycopg2.connect(**data, connect_timeout = 5)
 cur = conn.cursor()
@@ -51,14 +51,14 @@ for filename in filenames:
     logfile = logfile + hashcheck['message'] + filecheck['message']
     logfile.append(f"\nNew Upload started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
-    uploader = {'hashcheck': {'valid':False}}
+    uploader = {}
     if hashcheck['pass'] is False and filecheck['pass'] is False:
         csv_file = nh.read_csv(filename)
         logfile.append("File must be properly validated before it can be uploaded.")
-        #uploader['hashcheck']['valid'] = False
+        hashcheck = False
     else:
         csv_file = nh.read_csv(filename)
-        uploader['hashcheck']['valid'] = True
+        hashcheck = True
         
     yml_dict = nh.template_to_dict(temp_file=args['template'])
     yml_data = yml_dict['metadata']
@@ -82,7 +82,6 @@ for filename in filenames:
     #     # logfile.append(f"Geopolitical Unit: {uploader['geopolid']}")
 
     logfile.append('\n === Inserting Collection Units ===')
-    # Placeholders are present
     uploader['collunitid'] = nu.insert_collunit(cur = cur,
                                             yml_dict = yml_dict,
                                             csv_file = csv_file,
@@ -104,7 +103,6 @@ for filename in filenames:
     logfile = logging_response(uploader['pbmodel'], logfile)
 
     logfile.append('\n=== Inserting Chronology ===')
-    # Placeholders exist
     uploader['chronology'] = nu.insert_chronology(cur = cur,
                                                   yml_dict = yml_dict,
                                                   csv_file = csv_file,
@@ -192,12 +190,14 @@ for filename in filenames:
         for i in logfile:
             writer.write(i)
             writer.write('\n')
-    # all_true = all([uploader[key]['valid'] for key in uploader if 'valid' in uploader[key]])
-    all_true = False
+            
+    all_true = all([uploader[key].validAll for key in uploader])
+    all_true = all_true and hashcheck
+
     if all_true:
         print(f"{filename} was uploaded.\nMoved {filename} to the 'uploaded_files' folder.")
-        #conn.commit()
-        conn.rollback()
+        conn.commit()
+        #conn.rollback()
         os.makedirs(uploaded_files, exist_ok=True)
         uploaded_path = os.path.join(uploaded_files, os.path.basename(filename))
         os.replace(filename, uploaded_path)

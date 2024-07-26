@@ -60,14 +60,18 @@ class Site:
          self.geog == other.geog)
 
     def insert_to_db(self, cur):
+        """
+        NS is latitude,
+        EW is longitude
+        """
         site_query = """SELECT ts.insertsite(_sitename := %(sitename)s, 
                         _altitude := %(altitude)s,
                         _area := %(area)s,
                         _descript := %(sitedescription)s,
                         _notes := %(notes)s,
                         _east := %(ew)s,
-                        _north := %(ns)s,
                         _west := %(ew)s,
+                        _north := %(ns)s,
                         _south := %(ns)s)"""
         inputs = {'siteid': self.siteid,
                   'sitename': self.sitename[0],
@@ -75,7 +79,7 @@ class Site:
                   'area': self.area,
                   'sitedescription': self.sitedescription,
                   'notes': self.notes,
-                  'ew': self.geog.latitude,
+                  'ew': self.geog.latitude, #might be upside down
                   'ns':  self.geog.longitude}
         cur.execute(site_query, inputs)
         self.siteid = cur.fetchone()[0]
@@ -97,8 +101,8 @@ class Site:
                 'area': self.area,
                 'sitedescription': self.sitedescription,
                 'notes': self.notes,
-                'ew': self.geog.latitude,
-                'ns': self.geog.longitude}
+                'ns': self.geog.latitude,
+                'ew': self.geog.longitude}
         cur.execute(site_query, inputs)
         self.siteid = cur.fetchone()[0]
         return self.siteid
