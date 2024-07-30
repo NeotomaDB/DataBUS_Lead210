@@ -1,0 +1,38 @@
+[build-system]
+requires      = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "DataBUS"
+version = "0.1.0"
+description = "Upload site information to the neotoma Database"
+authors = [{name = "Socorro E Dominguez Vidana", email = "s.dominguez@ht-data.com"}]
+
+dependencies = [
+    "numpy==1.25.0",
+    "pandas==2.0.2",
+    "psycopg2-binary==2.9.6",
+    "python-dateutil==2.8.2",
+    "python-dotenv==1.0.0",
+    "pytz==2023.3",
+    "PyYAML==6.0",
+    "six==1.16.0",
+    "tzdata==2023.3",
+    "openpyxl"
+]
+
+requires-python = ">=3.7"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"DataBUS" = ["DataBUS/sqlHelpers/upsert_site.sql",
+      "DataBUS/sqlHelpers/insert_pb_model.sql",
+      "DataBUS/sqlHelpers/insert_data_uncertainty.sql",
+      "DataBUS/sqlHelpers/insert_taxa_row.sql",
+      "DataBUS/sqlHelpers/upsert_collunit.sql"]
+
+    [project.optional-dependencies]
+    build = ["build", "twine"]
+    dev = ["black", "bumpver", "isort", "mypy", "pytest"]
