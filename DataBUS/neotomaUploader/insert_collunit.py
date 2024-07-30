@@ -71,7 +71,6 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
         coll_info = cur.fetchall()
         if len(coll_info) == 1:
             coll_info = coll_info[0]
-            print(coll_info)
             response.message.append(f"✔  Handle {cu.handle} found in Neotoma.")
             try:
                 found_cu = CollectionUnit(collectionunitid = int(coll_info[0]),
@@ -93,7 +92,6 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
                                           location = str(coll_info[16]), 
                                           notes = str(coll_info[17]))
             except Exception as e: # more comments
-                print(e)
                 response.valid.append(False)
                 response.message.append(f"✗ Cannot create Collection Unit from Neotoma Data: {e}")
             updated_cu = cu.update_collunit(found_cu, overwrite, response) 

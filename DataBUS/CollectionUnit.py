@@ -198,7 +198,6 @@ class CollectionUnit:
                   'location': self.location,
                   'notes': self.notes,
                   }
-        print(f"upsert_cu - long: {inputs['ew']}, lat: {inputs['ns']}")
         cur.execute(cu_query, inputs)
         self.collunitid = cur.fetchone()[0]
         return self.collunitid
@@ -237,7 +236,6 @@ class CollectionUnit:
                   'slopeangle': self.slopeangle,
                   'location': self.location,
                   'notes': self.notes}
-        print(f"insert_cu - lat: {inputs['gpslatitude']}, lon: {inputs['gpslongitude']}")
         cur.execute(cu_query, inputs)
         self.collunitid = cur.fetchone()[0]
         return self.collunitid
