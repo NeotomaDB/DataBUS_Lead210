@@ -79,8 +79,10 @@ class Site:
                   'area': self.area,
                   'sitedescription': self.sitedescription,
                   'notes': self.notes,
-                  'ew': self.geog.latitude, #might be upside down
-                  'ns':  self.geog.longitude}
+                  'ns': self.geog.latitude, #might be upside down
+                  'ew':  self.geog.longitude}
+
+        print(f"insert_site - ew: {inputs['ew']}, ns: {inputs['ns']}")
         cur.execute(site_query, inputs)
         self.siteid = cur.fetchone()[0]
         return self.siteid
@@ -103,6 +105,7 @@ class Site:
                 'notes': self.notes,
                 'ns': self.geog.latitude,
                 'ew': self.geog.longitude}
+        print(f"upsert_site - ew: {inputs['ew']}, ns: {inputs['ns']}")
         cur.execute(site_query, inputs)
         self.siteid = cur.fetchone()[0]
         return self.siteid
