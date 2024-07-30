@@ -4,7 +4,7 @@
 import importlib.resources
 
 with importlib.resources.open_text(
-    "DataBUS.sqlHelpers", "insert_pb_model.sql"
+    "src.DataBUS.sqlHelpers", "insert_pb_model.sql"
 ) as sql_file:
     insert_pb_model = sql_file.read()
 
