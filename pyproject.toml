@@ -27,11 +27,11 @@ requires-python = ">=3.7"
 include-package-data = true
 
 [tool.setuptools.package-data]
-"DataBUS" = ["DataBUS/sqlHelpers/upsert_site.sql",
-      "DataBUS/sqlHelpers/insert_pb_model.sql",
-      "DataBUS/sqlHelpers/insert_data_uncertainty.sql",
-      "DataBUS/sqlHelpers/insert_taxa_row.sql",
-      "DataBUS/sqlHelpers/upsert_collunit.sql"]
+"DataBUS" = ["sqlHelpers/upsert_site.sql",
+      "sqlHelpers/insert_pb_model.sql",
+      "sqlHelpers/insert_data_uncertainty.sql",
+      "sqlHelpers/insert_taxa_row.sql",
+      "sqlHelpers/upsert_collunit.sql"]
 
     [project.optional-dependencies]
     build = ["build", "twine"]
