@@ -6,6 +6,7 @@ import itertools
 import argparse
 import os
 
+import DataBUS.sqlHelpers
 from .yaml_values import yaml_values
 from .insert_site import insert_site
 from .insert_analysisunit import insert_analysisunit
