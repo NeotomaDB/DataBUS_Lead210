@@ -21,25 +21,16 @@ def insert_chronology(cur, yml_dict, csv_file, uploader):
     response = ChronResponse()
 
     params = [
-        "chronologyid",
-        "collectionunitid",
-        "contactid",
-        "isdefault",
-        "chronologyname",
-        "dateprepared",
-        "agemodel",
-        "ageboundyounger",
-        "ageboundolder",
-        "notes",
-        "recdatecreated",
-        "recdatemodified",
+        "chronologyid", "collectionunitid", "contactid", "isdefault", "chronologyname",
+        "dateprepared", "agemodel", "ageboundyounger", "ageboundolder", "notes",
+        "recdatecreated", "recdatemodified",
     ]
     inputs = nh.clean_inputs(
         nh.pull_params(params, yml_dict, csv_file, "ndb.chronologies")
     )
     inputs_age = nh.clean_inputs(
-        nh.pull_params(["age"], yml_dict, csv_file, "ndb.sampleages")
-    )
+        nh.pull_params(["age"], yml_dict, csv_file, "ndb.sampleages"))
+    
     agetype = list(set(inputs_age["unitcolumn"]))
     inputs["agetype"] = agetype[0]
     inputs["agemodel"] = "X210Lead"
@@ -77,7 +68,7 @@ def insert_chronology(cur, yml_dict, csv_file, uploader):
         chron = Chronology(collectionunitid=uploader["collunitid"].cuid)
 
     if isinstance(inputs_age["age"], (int, float)):
-        chron.maxage = int(max(inputs_age["age"]))
+        chron.maxage = int(max(inputs_age["age"])) 
         chron.minage = int(min(inputs_age["age"]))
     else:
         response.message.append("? Age is set to None. Minage/maxage will be None.")

@@ -66,16 +66,21 @@ def insert_chron_control(cur, yml_dict, csv_file, uploader):
         response.valid.append(False)
         inputs["agetypeid"] = None
 
-    if inputs_age["age"]:
-        age_min = min([x for x in inputs_age["age"] if x is not None])
-        age_max = max([x for x in inputs_age["age"] if x is not None])
-    else:
-        age_min = age_max = None
     for k in ["notes"]:
-        if inputs[k] == None:
-            inputs[k] = [inputs[k]] * len(inputs["depth"])
+       if inputs[k] == None:
+           inputs[k] = [inputs[k]] * len(inputs["depth"])
 
     for i in range(len(uploader["anunits"].auid)):
+        if isinstance(inputs_age["age"][i], (int, float)):
+            age_old = inputs_age["age"][i] - inputs_age["uncertainty"][i]
+            age_young = inputs_age["age"][i] + inputs_age["uncertainty"][i]
+        else:
+            response.message.append(
+                "? Age is set to None. Ageyounger/Ageolder will be None."
+            )
+            age_old = None
+            age_young = None
+
         try:
             cc = ChronControl(
                 chronologyid=int(uploader["chronology"].chronid),
@@ -84,8 +89,8 @@ def insert_chron_control(cur, yml_dict, csv_file, uploader):
                 depth=inputs["depth"][i],
                 thickness=inputs["thickness"][i],
                 age=inputs_age["age"][i],
-                agelimityounger=age_min,
-                agelimitolder=age_max,
+                agelimityounger=age_young,
+                agelimitolder=age_old,
                 notes=inputs["notes"][i],
                 agetypeid=inputs["agetypeid"],
             )
@@ -95,6 +100,7 @@ def insert_chron_control(cur, yml_dict, csv_file, uploader):
             response.message.append(f"✔ Added Chron Control {ccid}.")
 
         except Exception as e:
+            print(e)
             response.message.append(
                 f"✗  Chron Control Data is not correct. Error message: {e}"
             )

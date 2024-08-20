@@ -33,6 +33,7 @@ def insert_sample(cur, yml_dict, csv_file, uploader):
     for j in range(len(uploader["anunits"].auid)):
         get_taxonid = """SELECT * FROM ndb.taxa WHERE taxonname %% %(taxonname)s;"""
         cur.execute(get_taxonid, {"taxonname": inputs["taxonname"]})
+
         taxonid = cur.fetchone()
         if taxonid != None:
             taxonid = int(taxonid[0])

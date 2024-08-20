@@ -8,6 +8,7 @@ def insert_data(cur, yml_dict, csv_file, uploader):
 
     params = ["value"]
     inputs = nh.pull_params(params, yml_dict, csv_file, "ndb.data")
+   # print(inputs)
 
     params2 = ["variableelementid", "variablecontextid"]
     inputs2 = nh.clean_inputs(nh.pull_params(params2, yml_dict, csv_file, "ndb.data"))

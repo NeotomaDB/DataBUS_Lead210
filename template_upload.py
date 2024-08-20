@@ -66,6 +66,7 @@ for filename in filenames:
     # Verify that the CSV columns and the YML keys match
     csv_valid = valid_csv(filename = filename,
                                 yml_data = yml_data)
+    logfile.append('\n === Inserting Publications ===')
 
     logfile.append('\n=== Inserting New Site ===')
     uploader['sites'] = nu.insert_site(cur = cur,
@@ -185,6 +186,13 @@ for filename in filenames:
                                     uploader = uploader)
     logfile = logging_response(uploader['uncertainties'], logfile)
 
+    logfile.append('\n === Inserting Publications ===')
+    uploader['publications'] = nu.insert_publication(cur, 
+                                    yml_dict = yml_dict,
+                                    csv_file = csv_file,
+                                    uploader = uploader)
+    logfile = logging_response(uploader['publications'], logfile)
+
     modified_filename = filename.replace('data/', 'data/upload_logs/')
     with open(modified_filename + '.upload.log', 'w', encoding = "utf-8") as writer:
         for i in logfile:
@@ -197,7 +205,7 @@ for filename in filenames:
     if all_true:
         print(f"{filename} was uploaded.\nMoved {filename} to the 'uploaded_files' folder.")
         conn.commit()
-        #conn.rollback()
+        conn.rollback()
         os.makedirs(uploaded_files, exist_ok=True)
         uploaded_path = os.path.join(uploaded_files, os.path.basename(filename))
         os.replace(filename, uploaded_path)

@@ -52,7 +52,6 @@ def insert_dataset(cur, yml_dict, csv_file, uploader):
         )
         response.valid.append(True)
     except Exception as e:
-        print(e)
         response.valid.append(False)
         response.message.append("✗ Dataset was not created: {e}")
         ds = Dataset(
