@@ -2,7 +2,7 @@ class Response:
     def __init__(self, valid=None, message=None):
         self.valid = valid if valid is not None else []
         self.message = message if message is not None else []
-        self.validAll = all(self.valid)
+        self.validAll = None
         self.datasetid = None
         self.datasetpi = []
         self.processor = []

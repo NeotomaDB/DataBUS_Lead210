@@ -39,5 +39,5 @@ def valid_dataset_database(cur, yml_dict):
         response.valid.append(False)
 
     response.databaseid = inputs["databaseid"]
-    response.valid = all(response.valid)
+    response.validAll = all(response.valid)
     return response

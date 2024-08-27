@@ -57,4 +57,5 @@ def valid_taxa(cur, csv_template, yml_dict):
             response["valid"] = True
 
         # TODO: Verify that 'variableelementid', 'variablecontextid' also exist
+    response.validAll = all(response.valid)
     return response

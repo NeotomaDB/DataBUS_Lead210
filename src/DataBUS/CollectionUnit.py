@@ -152,22 +152,26 @@ class CollectionUnit:
         return close_handles
 
     def __eq__(self, other):
-        return (
-            self.colltypeid == other.colltypeid
-            and self.depenvtid == other.depenvtid
-            and self.collunitname == other.collunitname
-            and self.colldate == other.colldate
-            and self.colldevice == other.colldevice
-            and self.gpsaltitude == other.gpsaltitude
-            and self.gpserror == other.gpserror
-            and self.waterdepth == other.waterdepth
-            and self.substrateid == other.substrateid
-            and self.slopeaspect == other.slopeaspect
-            and self.slopeangle == other.slopeangle
-            and self.location == other.location
-            and self.notes == other.notes
-            and self.geog == other.geog
-        )
+        attributes = [
+        'colltypeid', 'depenvtid', 'collunitname', 'colldate', 'colldevice',
+        'gpsaltitude', 'gpserror', 'waterdepth', 'substrateid', 'slopeaspect',
+        'slopeangle', 'location', 'notes', 'geog'
+    ]
+        return all(getattr(self, attr) == getattr(other, attr) for attr in attributes)
+    
+    def compare_cu(self, other):
+        attributes = [
+        'colltypeid', 'depenvtid', 'collunitname', 'colldate', 'colldevice',
+        'gpsaltitude', 'gpserror', 'waterdepth', 'substrateid', 'slopeaspect',
+        'slopeangle', 'location', 'notes', 'geog']
+
+        differences = []
+
+        for attr in attributes:
+            if getattr(self, attr) != getattr(other, attr):
+                differences.append(f"{attr}: {getattr(self, attr)} != {getattr(other, attr)} \n")
+
+        return differences
 
     def update_collunit(self, other, overwrite, cu_response=None):
         if cu_response is None:

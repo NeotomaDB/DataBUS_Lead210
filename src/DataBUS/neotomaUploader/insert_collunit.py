@@ -47,7 +47,7 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
     ]
     inputs = nh.clean_inputs(
         nh.pull_params(params, yml_dict, csv_file, "ndb.collectionunits")
-    )
+    ) 
     try:
         geog = Geog((inputs["geog"][0], inputs["geog"][1]))
         response.message.append(

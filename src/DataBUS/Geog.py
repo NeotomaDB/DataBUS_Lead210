@@ -18,12 +18,15 @@ class Geog:
             raise WrongCoordinates("✗ Longitude must be between -180 and 180.")
         self.latitude = coords[0]
         self.longitude = coords[1]
-        self.hemisphere = ("N" if self.latitude >= 0 else "S") + (
-            "E" if self.longitude >= 0 else "W"
-        )
+        if self.latitude is not None and self.longitude is not None:
+            self.hemisphere = ("N" if self.latitude >= 0 else "S") + (
+                "E" if self.longitude >= 0 else "W"
+            )
+        else:
+            self.hemisphere = None
 
     def __eq__(self, other):
         return self.latitude == other.latitude and self.longitude == other.longitude
 
     def __str__(self):
-        return f"(Lat:{self.latitude:<10}, Long: {self.longitude:<10})"
+        return f"(Lat:{self.latitude}, Long: {self.longitude})"

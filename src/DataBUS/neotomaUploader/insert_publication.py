@@ -22,7 +22,6 @@ def insert_publication(cur, yml_dict, csv_file, uploader):
         value if value != "NA" else None for value in inputs["publicationid"]
     ]
     inputs["publicationid"] = inputs["publicationid"][0]
-    print(inputs)
     doi_pattern = r"^10\.\d{4,9}/[-._;()/:A-Z0-9]+$"
 
     dataset_pub_q = """SELECT ts.insertdatasetpublication(%(datasetid)s, 

@@ -101,7 +101,7 @@ def valid_site(cur, yml_dict, csv_file):
             )
             match_status = "matches" if response.doublematched else "differs"
             response.message.append(
-                f"? Site name {match_status}, but locations differ."
+                f"? Site name {match_status}. Locations differ."
             )
         else:
             response.valid.append(True)
@@ -133,7 +133,7 @@ def valid_site(cur, yml_dict, csv_file):
                 response.message.append(new_site)
                 if not response.matched["namematch"]:
                     response.message.append(
-                        f"✗ The sitenames do not match. Current sitename in Neotoma: {site['name']}. Proposed name: {inputs['sitename'][0]}."
+                        f"✗ The sitenames do not match. Current sitename in Neotoma: {site.sitename}. Proposed name in file: {inputs['sitename'][0]}."
                     )
                 else:
                     response.message.append("✔  Names match")

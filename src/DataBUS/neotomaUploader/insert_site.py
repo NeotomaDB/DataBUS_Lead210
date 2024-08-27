@@ -113,7 +113,7 @@ def insert_site(cur, yml_dict, csv_file):
             response.siteid = site.insert_to_db(cur)
             response.sitelist.append(site)
             response.valid.append(True)
-            response.message.append(f"✔  Added Site {response['siteid']}")
+            response.message.append(f"✔  Added Site {response.siteid}")
         except Exception as e:
             response.message.append(f"✗  Cannot add Site: {e}")
             temp_site = Site()

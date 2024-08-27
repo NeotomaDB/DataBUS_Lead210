@@ -51,4 +51,5 @@ def valid_analysisunit(yml_dict, csv_file):
                 response.valid.append(False)
                 response.message.append(f"✗ AnalysisUnit cannot be created: " f"{e}")
             response.aucounter += 1
+    response.validAll = all(response.valid)
     return response
