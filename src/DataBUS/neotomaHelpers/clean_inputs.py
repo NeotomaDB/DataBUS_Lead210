@@ -4,6 +4,6 @@ def clean_inputs(data):
             data[key] = None
 
     if "siteid" in data:
-        data["siteid"] = None if data["siteid"][0] == "NA" else int(data["siteid"][0])
+        data["siteid"] = None if data["siteid"][0] in ["NA", ""] else int(data["siteid"][0])
 
     return data
