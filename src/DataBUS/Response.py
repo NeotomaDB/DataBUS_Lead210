@@ -14,7 +14,10 @@ class Response:
 
     def __str__(self):
         new_msg = "\n".join(str(m) for m in self.message)
-        return f"Valid: {self.validAll} \n" f"Message: \n" f"{new_msg}"
+        if self.validAll == False:
+            return f"Valid: {str(self.validAll).upper()} \n" f"Message: \n" f"{new_msg}"
+        else:
+            return f"Valid: {self.validAll} \n" f"Message: \n" f"{new_msg}"
 
 
 class SiteResponse(Response):

@@ -46,10 +46,12 @@ def valid_analysisunit(yml_dict, csv_file):
                     recdatemodified=inputs["recdatemodified"],
                 )
                 response.valid.append(True)
-                response.message.append("✔ AnalysisUnit can be created")
             except Exception as e:  # for now
                 response.valid.append(False)
                 response.message.append(f"✗ AnalysisUnit cannot be created: " f"{e}")
             response.aucounter += 1
+    response.message = list(set(response.message))
     response.validAll = all(response.valid)
+    if response.validAll:
+        response.message.append("✔ AnalysisUnit can be created")
     return response

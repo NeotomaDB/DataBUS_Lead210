@@ -172,3 +172,16 @@ class Site:
                 setattr(self, attr, getattr(other, attr))
                 updated_attributes.append(attr)
         return self
+
+    def compare_site(self, other):
+        attributes = [
+        'siteid', 'sitename', 'altitude', 'area',
+        'sitedescription', 'notes', 'geog']
+
+        differences = []
+
+        for attr in attributes:
+            if getattr(self, attr) != getattr(other, attr):
+                differences.append(f"CSV {attr}: {getattr(self, attr)} != Neotoma {attr}: {getattr(other, attr)}")
+
+        return differences

@@ -52,11 +52,12 @@ def valid_sample(cur, yml_dict, csv_file, validator):
                 notes=inputs["notes"],
             )
             response.valid.append(True)
-            response.message.append(f"✔ Sample can be created.")
 
         except Exception as e:
             response.message.append(f"✗ Samples data is not correct: {e}")
             response.valid.append(False)
 
     response.validAll = all(response.valid)
+    if response.validAll:
+        response.message.append(f"✔ Sample can be created.")
     return response

@@ -169,7 +169,7 @@ class CollectionUnit:
 
         for attr in attributes:
             if getattr(self, attr) != getattr(other, attr):
-                differences.append(f"{attr}: {getattr(self, attr)} != {getattr(other, attr)} \n")
+                differences.append(f"CSV {attr}: {getattr(self, attr)} != Neotoma {attr}: {getattr(other, attr)}")
 
         return differences
 

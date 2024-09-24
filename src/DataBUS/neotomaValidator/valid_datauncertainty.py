@@ -55,9 +55,10 @@ def valid_datauncertainty(cur, yml_dict, csv_file, validator):
                     notes=uncertainty["uncertaintybasis_notes"],
                 )
                 response.valid.append(True)
-                response.message.append(f"✔  Data Uncertainty can be created")
             except Exception as e:
                 response.valid.append(False)
                 response.message.append(f"✗ Data Uncertainty cannot be created: {e}")
     response.validAll = all(response.valid)
+    if response.validAll:
+        response.message.append(f"✔  Data Uncertainty can be created")
     return response

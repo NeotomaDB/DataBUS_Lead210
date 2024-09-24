@@ -49,7 +49,7 @@ def pull_params(params, yml_dict, csv_template, table=None):
                                 clean_valor = list(map(int, clean_valor))
                             case "float":
                                 clean_valor = [
-                                    float(value) if value != "NA" else None
+                                    float(value) if value not in ["NA", ""] else None
                                     for value in clean_valor
                                 ]
                                 # clean_valor = list(map(float, clean_valor))

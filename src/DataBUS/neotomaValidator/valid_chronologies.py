@@ -45,7 +45,6 @@ def valid_chronologies(cur, yml_dict, csv_file):
     for k in inputs:
         if not inputs[k]:
             response.message.append(f"? {k} has no values.")
-            response.valid.append(False)
         else:
             response.message.append(f"✔ {k} looks valid.")
             response.valid.append(True)
@@ -70,9 +69,9 @@ def valid_chronologies(cur, yml_dict, csv_file):
             recdatemodified=inputs["recdatemodified"],
         )
         response.valid.append(True)
-        response.message.append("Chronology can be created")
+        response.message.append("✔  Chronology can be created")
     except Exception as e:
         response.valid.append(False)
-        response.message.append("Chronology cannot be created.")
+        response.message.append("✗  Chronology cannot be created.")
     response.validAll = all(response.valid)
     return response

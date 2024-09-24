@@ -201,10 +201,10 @@ for filename in filenames:
             
     all_true = all([uploader[key].validAll for key in uploader])
     all_true = all_true and hashcheck
-
+    #all_true = False
     if all_true:
         print(f"{filename} was uploaded.\nMoved {filename} to the 'uploaded_files' folder.")
-        conn.commit()
+        #conn.commit()
         conn.rollback()
         os.makedirs(uploaded_files, exist_ok=True)
         uploaded_path = os.path.join(uploaded_files, os.path.basename(filename))

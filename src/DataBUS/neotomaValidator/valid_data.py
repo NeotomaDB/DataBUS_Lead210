@@ -29,7 +29,7 @@ def valid_data(cur, yml_dict, csv_file, validator):
 
             if taxonid:
                 taxonid = int(taxonid[0])
-                response.message.append(f"✔ Taxon ID {taxonid} found.")
+                #response.message.append(f"✔ Taxon ID {taxonid} found.")
             else:
                 counter += 1
                 taxonid = counter  # To do temporary taxon
@@ -49,9 +49,9 @@ def valid_data(cur, yml_dict, csv_file, validator):
             cur.execute(get_vunitsid, {"units": val_dict["unitcolumn"][i].lower()})
             vunitsid = cur.fetchone()  # This is to get varunitsid
             counter2 = 0
-            if vunitsid:
-                response.message.append(f"✔ Units ID {vunitsid} found.")
-            else:
+            #if vunitsid:
+            #    response.message.append(f"✔ Units ID {vunitsid} found.")
+            if not vunitsid:
                 counter2 += 1
                 vunitsid = counter
                 response.message.append(
@@ -91,7 +91,7 @@ def valid_data(cur, yml_dict, csv_file, validator):
             if varid:
                 varid = varid[0]
                 response.valid.append(True)
-                response.message.append(f"✔ Var ID {varid} found.")
+                #response.message.append(f"✔ Var ID {varid} found.")
             else:
                 try:
                     varid = var.insert_to_db(cur)
@@ -119,7 +119,6 @@ def valid_data(cur, yml_dict, csv_file, validator):
                     sampleid=int(i), variableid=int(varid), value=val_dict["value"][i]
                 )
                 response.valid.append(True)
-                (f"✔  Datum can be created.")
             except Exception as e:
                 response.valid.append(False)
                 response.message.append(f"✗  Datum cannot be created: {e}")
@@ -131,5 +130,8 @@ def valid_data(cur, yml_dict, csv_file, validator):
 
     response.validAll = all(response.valid)
     response.uncertainty_inputs = uncertainty_d
+
+    if response.validAll:
+        response.message.append(f"✔  Datum can be created.")
 
     return response

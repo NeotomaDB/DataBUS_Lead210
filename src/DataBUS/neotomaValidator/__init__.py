@@ -23,7 +23,6 @@ from .valid_sample import valid_sample
 from .check_file import check_file
 from .valid_csv import valid_csv
 from .vocabDict import vocabDict
-from .valid_taxa import valid_taxa
 from .valid_data import valid_data
 from .valid_sample_age import valid_sample_age
 from .valid_pbmodel import valid_pbmodel

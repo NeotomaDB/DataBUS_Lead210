@@ -26,7 +26,9 @@ cur = conn.cursor()
 directory = Path(args['data'])
 filenames = directory.glob("*.csv")
 valid_logs = Path('data/validation_logs')
+valid_logs_wrong = Path('data/validation_logs/not_validated/')
 valid_logs.mkdir(exist_ok=True)
+valid_logs_wrong.mkdir(exist_ok=True)
 
 for filename in filenames:
     print(filename)
@@ -164,10 +166,29 @@ for filename in filenames:
 
         # Nothing needs to be committed to the database
         conn.rollback()
+        
+        all_true = all([validator[key].validAll for key in ['sites', 'collunits', 'analysisunit', 'pbmodel', 'chronologies', 
+                                                            'chron_controls', 'dataset', 'agent', 'horizoncheck', 'repository',
+                                                            'database', 'sample', 'sample_age', 'taxa', 'datauncertainty']])
+        #all_true = False
+        not_validated_files = "data/not_validated_files"
+
+        #all_true = True
+        if all_true == False:
+            print(f"{filename} cannot be validated.\nMoved {filename} to the 'not_validated_files' folder.")
+            os.makedirs(not_validated_files, exist_ok=True)
+            uploaded_path = os.path.join(not_validated_files, os.path.basename(filename))
+            os.replace(filename, uploaded_path)
+
         ########### Write to log.
-        modified_filename = f'{filename}'.replace('data/', 'data/validation_logs/')
-        modified_filename = Path(modified_filename + '.valid.log')
+        if all_true == False:
+            modified_filename = f'{filename}'.replace('data/', 'data/validation_logs/not_validated/')
+            modified_filename = Path(modified_filename + '.valid.log')
+        else:
+            modified_filename = f'{filename}'.replace('data/', 'data/validation_logs/')
+            modified_filename = Path(modified_filename + '.valid.log')
+        
         with modified_filename.open(mode = 'w', encoding = "utf-8") as writer:
             for i in logfile:
                 writer.write(i)
-                writer.write('\n')
+                writer.write('\n') 

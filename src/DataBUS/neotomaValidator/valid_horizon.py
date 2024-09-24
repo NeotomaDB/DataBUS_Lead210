@@ -23,20 +23,23 @@ def valid_horizon(yml_dict, csv_template):
     if len(horizon["datinghorizon"]) == 1:
         matchingdepth = [i == horizon["datinghorizon"][0] for i in depths["depth"]]
         if any(matchingdepth):
-            response.valid = True
+            response.valid.append(True)
             response.index = next(i for i, v in enumerate(matchingdepth) if v)
             response.message.append("✔  The dating horizon is in the reported depths.")
+            response.valid.append(True)
         else:
-            response.valid = False
+            response.valid.append(False)
             response.index = -1
             response.message.append(
                 "✗  There is no depth entry for the dating horizon in the 'depths' column."
             )
     else:
-        response.valid = False
+        response.valid.append(False)
         response.index = None
         if len(horizon) > 1:
             response.message.append("✗  Multiple dating horizons are reported.")
         else:
             response.message.append("✗  No dating horizon is reported.")
+
+    response.validAll = all(response.valid)
     return response

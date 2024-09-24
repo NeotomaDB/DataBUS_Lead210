@@ -54,7 +54,6 @@ def valid_chroncontrols(yml_dict, csv_file):
     for k in inputs:
         if not inputs[k]:
             response.message.append(f"? {k} has no values.")
-            response.valid.append(False)
         else:
             response.message.append(f"✔ {k} looks valid.")
             response.valid.append(True)
@@ -76,9 +75,11 @@ def valid_chroncontrols(yml_dict, csv_file):
                 agetypeid=inputs["agetypeid"],
             )
             response.valid.append(True)
-            response.message.append(f"✔  Chron control can be created")
+            
         except Exception as e:
             response.message.append(f"✗  Could not do chron control {e}")
             response.valid.append(False)
     response.validAll = all(response.valid)
+    if response.validAll:
+        response.message.append(f"✔  Chron control can be created")
     return response

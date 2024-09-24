@@ -126,17 +126,33 @@ def valid_site(cur, yml_dict, csv_file):
                     siteid=site_data[0],
                     sitename=site_data[1],
                     geog=Geog((site_data[3], site_data[2])),
+                    altitude=site_data[6],
+                    area = site_data[7],
+                    sitedescription=site_data[8],
+                    notes=site_data[9]           
                 )
-                response.matched["namematch"] = site.sitename == new_site.sitename
+
+                msg = site.compare_site(new_site)
+                response.message.append(f"? Are sites equal: {site == new_site}.")
+                if msg:
+                    response.message.append(f"Fields at the Site level differ."
+                                            f"Verify that the information is correct.")
+                    for i in msg:
+                        response.message.append(f"{i}")
+
+                    required = nh.pull_required(params, yml_dict, table="ndb.sites")
+                    required_k = [key for key, value in required.items() if value]
+                    required_k.remove('geog')
+                    found_keywords = [keyword for keyword in required_k if any(keyword in text for text in msg)]
+                    marker = bool(found_keywords)
+                    if marker:
+                        response.message.append(f"Required fields that differ in Neotoma and CSV file as per template: {found_keywords}")
+                        response.valid.append(False)
+                    else:
+                        response.message.append("Some fields differ, but they are not required fields.")
+
                 response.matched["distmatch"] = site.geog == new_site.geog
-                response.valid.append(response.matched["namematch"])
                 response.message.append(new_site)
-                if not response.matched["namematch"]:
-                    response.message.append(
-                        f"✗ The sitenames do not match. Current sitename in Neotoma: {site.sitename}. Proposed name in file: {inputs['sitename'][0]}."
-                    )
-                else:
-                    response.message.append("✔  Names match")
                 if not response.matched["distmatch"]:
                     close_sites = site.find_close_sites(cur, limit=3)
                     response.message.append(

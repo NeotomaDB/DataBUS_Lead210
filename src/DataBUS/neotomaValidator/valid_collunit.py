@@ -1,4 +1,5 @@
 import itertools
+import re
 import DataBUS.neotomaHelpers as nh
 from DataBUS import Geog, WrongCoordinates, CollectionUnit, CUResponse
 
@@ -50,7 +51,6 @@ def valid_collunit(cur, yml_dict, csv_file):
                     WHERE LOWER(depenvt) = %(depenvt)s"""
         cur.execute(query, {"depenvt": inputs["depenvtid"].lower()})
         inputs["depenvtid"] = cur.fetchone()[0]
-
     try:
         geog = Geog((inputs["geog"][0], inputs["geog"][1]))
         response.message.append(
@@ -125,12 +125,37 @@ def valid_collunit(cur, yml_dict, csv_file):
                     location=str(coll_info[16]),
                     notes=str(coll_info[17]),
                 )
+                depenv_q = """SELECT depenvt from ndb.depenvttypes
+                            WHERE depenvtid = %(depenvtid)s"""
+                cur.execute(depenv_q, {'depenvtid': found_cu.depenvtid})
+                depenv_name = cur.fetchone()[0]
                 msg = cu.compare_cu(found_cu)
-                response.message.append(f"? CU equal: {cu == found_cu}.")
-                response.message.append(f"{msg}")
-
+                response.message.append(f"? Are CollUnits equal: {cu == found_cu}.")
+                if msg:
+                    response.message.append(f"Fields at the CU level differ.\n"
+                                            f"Verify that the information is correct.")
+                    for i in msg:
+                        response.message.append(f"{i}")
+                    
+                    required = nh.pull_required(params, yml_dict, table="ndb.collectionunits")
+                    required_k = [key for key, value in required.items() if value]
+                    found_keywords = [keyword for keyword in required_k if any(re.search(rf'CSV\s+\b{re.escape(keyword)}\b', text) for text in msg)]
+                    csv_nonempty_fields = [key for key, value in inputs.items() if value not in (None, 'NA')]
+                    found_keywords2 = [keyword for keyword in csv_nonempty_fields if any(re.search(rf'CSV\s+\b{re.escape(keyword)}\b', text) for text in msg)]
+                    found_keywords = list(set(found_keywords+found_keywords2))
+                    found_keywords.remove('geog')
+                    
+                    marker = bool(found_keywords)
+                    if marker:
+                        response.message.append(f"REQUIRED or CSV GIVEN FIELDS differ in Neotoma and CSV file: {found_keywords}")
+                        response.valid.append(False)
+                        if 'depenvtid' in found_keywords:
+                            response.message.append(f"Depenv value in Neotoma is: {depenv_name}")
+                    else:
+                        response.message.append("Some fields differ, but they are not required fields.")     
             except Exception as e:
                 response.message.append(e)
+                response.valid.append(False)
             
     close_handles = cu.find_close_collunits(cur)
     if len(close_handles) > 0:
