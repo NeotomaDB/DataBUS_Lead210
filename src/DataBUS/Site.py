@@ -30,16 +30,24 @@ class Site:
             raise ValueError("✗ There are multiple sitenames in your template.")
         self.sitename = sitename
 
-        if not (isinstance(altitude, (int, float)) or altitude is None):
+        if not (isinstance(altitude, (int, float, list)) or altitude is None):
             raise TypeError("Altitude must be a number or None.")
+        if isinstance(altitude, list):
+            if len(altitude)>1:
+                raise TypeError("Only one altitude per unit")
+            self.altitude = altitude[0]
         self.altitude = altitude
 
         if not (isinstance(area, (int, float)) or area is None):
             raise TypeError("Area must be a number or None.")
         self.area = area
 
-        if not (isinstance(sitedescription, str) or sitedescription is None):
+        if not (isinstance(sitedescription, (str, list)) or sitedescription is None):
             raise TypeError("Site Description must be a str or None.")
+        if isinstance(sitedescription, list):
+            if len(sitedescription)>1:
+                raise TypeError("Only one site description per unit")
+            self.sitedescription = sitedescription[0]
         self.sitedescription = sitedescription
 
         if not (isinstance(notes, str) or notes is None):
@@ -143,6 +151,7 @@ class Site:
             },
         )
         close_sites = cur.fetchall()
+        print(close_sites)
         return close_sites
 
     def update_site(self, other, overwrite, siteresponse=None):
