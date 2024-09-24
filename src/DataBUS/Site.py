@@ -151,7 +151,6 @@ class Site:
             },
         )
         close_sites = cur.fetchall()
-        print(close_sites)
         return close_sites
 
     def update_site(self, other, overwrite, siteresponse=None):
