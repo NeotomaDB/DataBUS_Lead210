@@ -44,7 +44,7 @@ def valid_collunit(cur, yml_dict, csv_file):
             nh.pull_params(params, yml_dict, csv_file, "ndb.collectionunits")
         )
     except Exception as e:
-        response.valid.append(False)
+        response.validAll = False 
         response.message.append("CU parameters cannot be properly extracted. Verify the CSV file.")
         response.message.append(e)
         return response
@@ -58,14 +58,18 @@ def valid_collunit(cur, yml_dict, csv_file):
                     WHERE LOWER(depenvt) = %(depenvt)s"""
         cur.execute(query, {"depenvt": inputs["depenvtid"].lower()})
         inputs["depenvtid"] = cur.fetchone()[0]
-    try:
-        geog = Geog((inputs["geog"][0], inputs["geog"][1]))
-        response.message.append(
-            f"? This set is expected to be " f"in the {geog.hemisphere} hemisphere."
-        )
-    except (TypeError, WrongCoordinates) as e:
-        response.valid.append(False)
-        response.message.append(str(e))
+    
+    if inputs['geog']:
+        try:
+            geog = Geog((inputs["geog"][0], inputs["geog"][1]))
+            response.message.append(
+                f"? This set is expected to be " f"in the {geog.hemisphere} hemisphere."
+            )
+        except (TypeError, WrongCoordinates) as e:
+            response.valid.append(False)
+            response.message.append(str(e))
+            geog = None
+    else:
         geog = None
 
     try:
@@ -163,35 +167,39 @@ def valid_collunit(cur, yml_dict, csv_file):
             except Exception as e:
                 response.message.append(e)
                 response.valid.append(False)
-            
-    close_handles = cu.find_close_collunits(cur)
-    if len(close_handles) > 0:
-        goodcols = [i[-2] for i in close_handles]
-        if any([j == cu.handle for j in goodcols]):
-            response.message.append(
-                f"" #Collection unit was found - but this would also happen from the above search
-            )
+    
+    if geog:
+        close_handles = cu.find_close_collunits(cur)
+        if len(close_handles) > 0:
+            goodcols = [i[-2] for i in close_handles]
+            if any([j == cu.handle for j in goodcols]):
+                response.message.append(
+                    f"" #Collection unit was found - but this would also happen from the above search
+                )
+            else:
+                response.message.append(
+                    f"?  The collection unit handle does not occur "
+                    f"within close sites."
+                )
+                sitecol = itertools.groupby(
+                    [{"sitename": k[1], "collunit": k[-2]} for k in close_handles],
+                    lambda x: x["sitename"],
+                )
+                sitemsg = [
+                    {"site": key, "collunits": [k["collunit"] for k in list(value)]}
+                    for key, value in sitecol
+                ]
+                for i in sitemsg:
+                    site = {"site": i["site"], "collunits": i["collunits"]}
+                    response.culist.append(site)
         else:
             response.message.append(
-                f"?  The collection unit handle does not occur "
-                f"within close sites."
+                f"✔  There are no nearby sites, a new collection unit "
+                f"will be created."
             )
-            sitecol = itertools.groupby(
-                [{"sitename": k[1], "collunit": k[-2]} for k in close_handles],
-                lambda x: x["sitename"],
-            )
-            sitemsg = [
-                {"site": key, "collunits": [k["collunit"] for k in list(value)]}
-                for key, value in sitecol
-            ]
-            for i in sitemsg:
-                site = {"site": i["site"], "collunits": i["collunits"]}
-                response.culist.append(site)
+            response.valid.append(True)
     else:
-        response.message.append(
-            f"✔  There are no nearby sites, a new collection unit "
-            f"will be created."
-        )
+        response.message.append(f"No given coordinates for CU. Cannot find nearby CUs")
         response.valid.append(True)
 
     response.validAll = all(response.valid)
