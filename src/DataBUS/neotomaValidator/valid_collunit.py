@@ -38,9 +38,16 @@ def valid_collunit(cur, yml_dict, csv_file):
         "notes",
         "geog",
     ]
-    inputs = nh.clean_inputs(
-        nh.pull_params(params, yml_dict, csv_file, "ndb.collectionunits")
-    )
+
+    try:
+        inputs = nh.clean_inputs(
+            nh.pull_params(params, yml_dict, csv_file, "ndb.collectionunits")
+        )
+    except Exception as e:
+        response.valid.append(False)
+        response.message.append("CU parameters cannot be properly extracted. Verify the CSV file.")
+        response.message.append(e)
+        return response
 
     for key, value in inputs.items():
         if isinstance(value, list) and len(value) == 1:
@@ -84,7 +91,7 @@ def valid_collunit(cur, yml_dict, csv_file):
     except (ValueError, TypeError, Exception) as e:
         response.valid.append(False)
         response.message.append(e)
-        cu = CollectionUnit()
+        cu = CollectionUnit(handle="Placeholder")
 
     response.message.append(f"Handlename: {cu.handle}")
     if inputs["handle"] != cu.handle:
