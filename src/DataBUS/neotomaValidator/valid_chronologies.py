@@ -20,26 +20,41 @@ def valid_chronologies(cur, yml_dict, csv_file):
         "recdatecreated",
         "recdatemodified",
     ]
-    inputs = nh.clean_inputs(
-        nh.pull_params(params, yml_dict, csv_file, "ndb.chronologies")
-    )
-    inputs_age = nh.clean_inputs(
-        nh.pull_params(["age"], yml_dict, csv_file, "ndb.sampleages")
-    )
-    agetype = list(set(inputs_age["unitcolumn"]))
-    inputs["agetype"] = agetype[0]
+    try:
+        inputs = nh.clean_inputs(
+            nh.pull_params(params, yml_dict, csv_file, "ndb.chronologies")
+        )
+        inputs_age = nh.clean_inputs(
+            nh.pull_params(["age"], yml_dict, csv_file, "ndb.sampleages")
+        )
+    except Exception as e:
+        response.validAll = False 
+        response.message.append("Chronology parameters cannot be properly extracted. Verify the CSV file.")
+        response.message.append(e)
+        return response
 
-    if inputs["agetype"] == "cal yr BP":
-        inputs["agetypeid"] = 2
-        response.message.append("✔ The provided age type is correct.")
-        response.valid.append(True)
-    elif inputs["agetype"] == "CE/BCE":
-        inputs["agetypeid"] = 1
-        response.message.append("✔ The provided age type is correct.")
-        response.valid.append(True)
+    try:
+        agetype = list(set(inputs_age["unitcolumn"]))
+        inputs["agetype"] = agetype[0]
+    except KeyError as e:
+        inputs["agetype"] = None
+
+    if inputs["agetype"]:
+        if inputs["agetype"] == "cal yr BP":
+            inputs["agetypeid"] = 2
+            response.message.append("✔ The provided age type is correct.")
+            response.valid.append(True)
+        elif inputs["agetype"] == "CE/BCE":
+            inputs["agetypeid"] = 1
+            response.message.append("✔ The provided age type is correct.")
+            response.valid.append(True)
+        else:
+            response.message.append("✗ The provided age type is incorrect..")
+            response.valid.append(False)
+            inputs["agetypeid"] = None
     else:
-        response.message.append("✗ The provided age type is incorrect..")
-        response.valid.append(False)
+        response.message.append("? No age type provided.")
+        response.valid.append(True)
         inputs["agetypeid"] = None
 
     for k in inputs:
@@ -72,6 +87,6 @@ def valid_chronologies(cur, yml_dict, csv_file):
         response.message.append("✔  Chronology can be created")
     except Exception as e:
         response.valid.append(False)
-        response.message.append("✗  Chronology cannot be created.")
+        response.message.append(f"✗  Chronology cannot be created: {e}")
     response.validAll = all(response.valid)
     return response
