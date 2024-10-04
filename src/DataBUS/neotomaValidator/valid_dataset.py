@@ -16,6 +16,9 @@ def valid_dataset(cur, yml_dict, csv_file):
     if inputs["datasetname"] and isinstance(inputs["datasetname"], list):
         if isinstance([inputs["datasetname"][0]], str):
             inputs["datasetname"] = inputs["datasetname"][0]["value"].lower()
+        elif isinstance(inputs["datasetname"][0], dict):
+            inputs["datasetname"] = inputs["datasetname"][0]["value"].lower()
+    
     else:
         inputs["datasetname"] = None
 
