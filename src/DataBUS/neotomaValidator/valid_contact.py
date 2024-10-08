@@ -25,6 +25,10 @@ def valid_contact(cur, csv_template, yml_dict):
             f"  === Checking Against Database - Table: {element['table']} ==="
         )
         agentname = element["contactid"]
+        if not agentname:
+            response.message.append(f"? Contact ID not given.")
+            continue
+
         namematch = []
         for name in agentname:
             response.message.append(f"  *** Named Contact: {name} ***")

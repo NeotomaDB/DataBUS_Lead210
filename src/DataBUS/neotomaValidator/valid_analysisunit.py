@@ -69,6 +69,7 @@ def valid_analysisunit(yml_dict, csv_file):
                     notes=inputs["notes"],
                     recdatecreated=inputs["recdatecreated"],
                     recdatemodified=inputs["recdatemodified"])
+        response.aucounter = 1
         
     response.message = list(set(response.message))
     response.validAll = all(response.valid)
