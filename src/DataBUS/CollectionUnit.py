@@ -1,6 +1,5 @@
 from .Geog import Geog, WrongCoordinates
 
-
 class CollectionUnit:
     description = "Collection Unit object in Neotoma"
 
@@ -281,8 +280,8 @@ class CollectionUnit:
             "collunitname": self.collunitname,
             "colldate": self.colldate,
             "colldevice": self.colldevice,
-            "gpslatitude": self.geog.latitude,
-            "gpslongitude": self.geog.longitude,
+            "gpslatitude": self.geog.latitude if self.geog is not None else None,
+            "gpslongitude": self.geog.longitude if self.geog is not None else None,
             "gpserror": self.gpserror,
             "waterdepth": self.waterdepth,
             "substrateid": self.substrateid,

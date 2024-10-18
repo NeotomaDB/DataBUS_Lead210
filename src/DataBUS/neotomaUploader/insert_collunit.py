@@ -14,7 +14,7 @@ with importlib.resources.open_text(
 
 def insert_collunit(cur, yml_dict, csv_file, uploader):
     """_Insert a new collection unit to a site_
-    Args:
+    Args: 
         cur (_psycopg2.extensions.cursor_): _A cursor pointing to the Neotoma
             Paleoecology Database._
         yml_dict (_dict_): _A `dict` returned by the YAML template._
@@ -45,18 +45,29 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
         "notes",
         "geog",
     ]
-    inputs = nh.clean_inputs(
-        nh.pull_params(params, yml_dict, csv_file, "ndb.collectionunits")
-    ) 
     try:
-        geog = Geog((inputs["geog"][0], inputs["geog"][1]))
-        response.message.append(
-            f"? This set is expected to be " f"in the {geog.hemisphere} hemisphere."
+        inputs = nh.clean_inputs(
+            nh.pull_params(params, yml_dict, csv_file, "ndb.collectionunits")
         )
-    except (TypeError, WrongCoordinates) as e:
-        response.valid = False
-        response.message.append(str(e))
+    except Exception as e:
+        response.validAll = False 
+        response.message.append("CU parameters cannot be properly extracted. Verify the CSV file.")
+        response.message.append(e)
+        return response
+    
+    if inputs['geog']:
+        try:
+            geog = Geog((inputs["geog"][0], inputs["geog"][1]))
+            response.message.append(
+                f"? This set is expected to be " f"in the {geog.hemisphere} hemisphere."
+            )
+        except (TypeError, WrongCoordinates) as e:
+            response.valid.append(False)
+            response.message.append(str(e))
+            geog = None
+    else:
         geog = None
+
     overwrite = nh.pull_overwrite(params, yml_dict, "ndb.collectionunits")
 
     if inputs["depenvtid"] and isinstance(inputs["depenvtid"], list):
@@ -149,8 +160,8 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
                 response.valid.append(True)
                 response.message.append(
                     f"✔  Overwrite is set to True."
-                    f"Collection Unit ID {response.cuid} is not "
-                    f"currently associated to a Collection Unit in Neotoma."
+                    f"Collection Unit is not "
+                    f"currently associated to a Collection Unit in Neotoma. "
                     f"New Collection unit will be created."
                 )
             else:
