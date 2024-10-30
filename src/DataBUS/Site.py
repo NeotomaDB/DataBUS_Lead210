@@ -35,8 +35,15 @@ class Site:
         if isinstance(altitude, list):
             if len(altitude)>1:
                 raise TypeError("Only one altitude per unit")
-            self.altitude = altitude[0]
-        self.altitude = altitude
+            if isinstance(altitude[0], (float, int)):
+                self.altitude = int(altitude[0])
+            else:
+                self.altitude = altitude[0]
+        else:
+            if isinstance(altitude, (float, int)):
+                self.altitude = int(altitude)
+            else:
+                self.altitude = altitude
 
         if not (isinstance(area, (int, float)) or area is None):
             raise TypeError("Area must be a number or None.")
@@ -48,8 +55,12 @@ class Site:
             if len(sitedescription)>1:
                 raise TypeError("Only one site description per unit")
             self.sitedescription = sitedescription[0]
-        self.sitedescription = sitedescription
-
+        else:
+            self.sitedescription = sitedescription
+        if isinstance(self.sitedescription, str):
+            if self.sitedescription == '':
+                self.sitedescription = None
+        
         if not (isinstance(notes, str) or notes is None):
             raise TypeError("Notes must be a str or None.")
         self.notes = notes
@@ -85,6 +96,7 @@ class Site:
         NS is latitude,
         EW is longitude
         """
+
         site_query = """SELECT ts.insertsite(_sitename := %(sitename)s, 
                         _altitude := %(altitude)s,
                         _area := %(area)s,
@@ -94,15 +106,21 @@ class Site:
                         _west := %(ew)s,
                         _north := %(ns)s,
                         _south := %(ns)s)"""
+        if not self.geog:
+            latitude = None
+            longitude = None
+        else:
+            latitude = self.geog.latitude
+            longitude = self.geog.longitude
+
         inputs = {
-            "siteid": self.siteid,
             "sitename": self.sitename[0],
             "altitude": self.altitude,
             "area": self.area,
             "sitedescription": self.sitedescription,
             "notes": self.notes,
-            "ns": self.geog.latitude,  # might be upside down
-            "ew": self.geog.longitude,
+            "ns": latitude,  # might be upside down
+            "ew": longitude,
         }
 
         cur.execute(site_query, inputs)

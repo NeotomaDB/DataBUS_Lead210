@@ -1,14 +1,9 @@
 import DataBUS.neotomaHelpers as nh
 from DataBUS import Geog, WrongCoordinates, Site, SiteResponse
-
-# with open('./DataBUS/sqlHelpers/upsert_site.sql', 'r') as sql_file:
-#     upsert_query = sql_file.read()
-
 import importlib.resources
 
 with importlib.resources.open_text("DataBUS.sqlHelpers", "upsert_site.sql") as sql_file:
     upsert_query = sql_file.read()
-
 
 def insert_site(cur, yml_dict, csv_file):
     """Insert or update a site in the Neotoma Paleoecology Database.
@@ -120,4 +115,6 @@ def insert_site(cur, yml_dict, csv_file):
             response.siteid = temp_site.insert_to_db(cur)
             response.valid.append(False)
             response.sitelist.append(temp_site)
+    response.validAll = all(response.valid)
     return response
+ 
