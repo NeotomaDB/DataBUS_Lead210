@@ -209,7 +209,7 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
             )  # Clear status of previous error.
             response.message.append(
                 f"✗ Collection Unit Data is not correct." f"Error message: {e}"
-            )
+            ) 
             response.cuid = cu.insert_to_db(cur)
             response.culist.append(cu)
             response.valid.append(False)
