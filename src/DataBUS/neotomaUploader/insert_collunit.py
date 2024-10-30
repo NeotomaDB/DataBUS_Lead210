@@ -1,9 +1,6 @@
 import DataBUS.neotomaHelpers as nh
 from DataBUS import Geog, WrongCoordinates, CollectionUnit, CUResponse
-
-# with open('./DataBUS/sqlHelpers/upsert_collunit.sql', 'r') as sql_file:
-#     upsert_query = sql_file.read()
-
+import datetime
 import importlib.resources
 
 with importlib.resources.open_text(
@@ -50,10 +47,33 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
             nh.pull_params(params, yml_dict, csv_file, "ndb.collectionunits")
         )
     except Exception as e:
-        response.validAll = False 
-        response.message.append("CU parameters cannot be properly extracted. Verify the CSV file.")
-        response.message.append(e)
-        return response
+        error_message = str(e)
+        try:
+            if "time data" in error_message.lower():
+                event_dates = [item.get('eventDate') for item in csv_file if 'eventDate' in item]
+                new_date = list(set(event_dates))
+                assert len(new_date) == 1, "There should only be one date"
+                new_date = new_date[0]
+                if isinstance(new_date, str) and len(new_date) > 4:
+                    if len(new_date) == 7 and new_date[4] == '-' and new_date[5:7].isdigit():
+                        new_date = f"{new_date}-01"
+                        datetime.strptime(date_string, "%Y-%m-%d")
+                    elif new_date.endswith("--"):
+                        notes = f"Collection Date seems to be: {new_date}"
+                        new_date = None
+            params.remove("colldate")
+            inputs = nh.clean_inputs(
+            nh.pull_params(params, yml_dict, csv_file, "ndb.collectionunits") ) 
+            inputs["colldate"] = new_date
+            if not inputs["notes"]:
+                inputs["notes"] = []
+                inputs["notes"].append(notes)
+            response.valid.append(True)
+        except Exception as inner_e:
+            response.validAll = False
+            response.message.append("CU parameters cannot be properly extracted. {e}\n")
+            response.message.append(str(inner_e))
+            return response
     
     if inputs['geog']:
         try:
