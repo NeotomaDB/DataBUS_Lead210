@@ -24,7 +24,7 @@ def insert_analysisunit(cur, yml_dict, csv_file, uploader):
         "recdatecreated",
         "recdatemodified",
     ]
-
+    print("CU:", uploader['collunitid'].cuid)
     try:
         inputs = nh.clean_inputs(
             nh.pull_params(params, yml_dict, csv_file, "ndb.analysisunits")
@@ -63,6 +63,8 @@ def insert_analysisunit(cur, yml_dict, csv_file, uploader):
     if inputs['depth']:
         for i in range(0, len(inputs["depth"])):
             try:
+                #print(au)
+                #print(inputs)
                 au = AnalysisUnit(
                 collectionunitid=uploader["collunitid"].cuid,
                 analysisunitname=inputs["analysisunitname"],
@@ -75,6 +77,7 @@ def insert_analysisunit(cur, yml_dict, csv_file, uploader):
                 recdatecreated=inputs["recdatecreated"][i],
                 recdatemodified=inputs["recdatemodified"][i],
             )
+  
             except Exception as e:
                 response.message.append(
                     f"✗ Could not create Analysis Unit, " f"verify entries: \n {e}"
@@ -82,7 +85,7 @@ def insert_analysisunit(cur, yml_dict, csv_file, uploader):
                 au = AnalysisUnit(collectionunitid=uploader["collunitid"].cuid, mixed=False)
             try:
                 auid = au.insert_to_db(cur)
-                if response.validAll == True:
+                if all(response.valid) == True:
                     response.message.append(f"✔ Added Analysis Unit {auid}.")
                     response.valid.append(True)
                 else:

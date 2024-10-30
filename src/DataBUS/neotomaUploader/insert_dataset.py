@@ -1,7 +1,6 @@
 import DataBUS.neotomaHelpers as nh
 from DataBUS import Dataset, Response
 
-
 def insert_dataset(cur, yml_dict, csv_file, uploader):
     """
     Inserts a dataset associated with a collection unit into a database.
@@ -27,7 +26,7 @@ def insert_dataset(cur, yml_dict, csv_file, uploader):
     }
 
     if inputs["datasetname"] and isinstance(inputs["datasetname"], list):
-        if isinstance([inputs["datasetname"][0]], str):
+        if isinstance(inputs["datasetname"][0], dict):
             inputs["datasetname"] = inputs["datasetname"][0]["value"].lower()
     else:
         inputs["datasetname"] = None
@@ -53,7 +52,8 @@ def insert_dataset(cur, yml_dict, csv_file, uploader):
         response.valid.append(True)
     except Exception as e:
         response.valid.append(False)
-        response.message.append("✗ Dataset was not created: {e}")
+        response.message.append(f"✗ Dataset was not created: {e}"
+                                f"Placeholder `10` will be used.")
         ds = Dataset(
             datasettypeid=10,
             collectionunitid=uploader["collunitid"].cuid,

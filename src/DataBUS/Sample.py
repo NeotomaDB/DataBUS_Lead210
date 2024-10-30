@@ -13,7 +13,10 @@ class Sample:
     ):
         self.analysisunitid = analysisunitid
         self.datasetid = datasetid
-        self.samplename = samplename
+        if isinstance(samplename, (tuple,list)):
+            self.samplename = samplename[0]
+        else:
+            self.samplename = samplename
         self.sampledate = sampledate
         self.analysisdate = analysisdate
         self.taxonid = taxonid
