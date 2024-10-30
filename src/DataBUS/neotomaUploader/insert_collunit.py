@@ -3,11 +3,9 @@ from DataBUS import Geog, WrongCoordinates, CollectionUnit, CUResponse
 import datetime
 import importlib.resources
 
-with importlib.resources.open_text(
-    "DataBUS.sqlHelpers", "upsert_collunit.sql"
-) as sql_file:
+with importlib.resources.open_text("DataBUS.sqlHelpers", "upsert_collunit.sql"
+                                   ) as sql_file:
     upsert_query = sql_file.read()
-
 
 def insert_collunit(cur, yml_dict, csv_file, uploader):
     """_Insert a new collection unit to a site_
