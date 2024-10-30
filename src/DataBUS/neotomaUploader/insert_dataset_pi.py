@@ -22,22 +22,35 @@ def insert_dataset_pi(cur, yml_dict, csv_file, uploader):
 
     # Use this method to preserve order.
     inputs["contactid"] = list(dict.fromkeys(inputs["contactid"]))
+    if len(inputs["contactid"]) == 1 and isinstance(inputs["contactid"][0],str):
+        inputs["contactid"] = inputs["contactid"][0].split(" | ")
+    inputs["contactid"] = list(dict.fromkeys(inputs["contactid"]))
+
     contids = nh.get_contacts(cur, inputs["contactid"])
     for agent in contids:
         try:
-            contact = Contact(contactid=int(agent["id"]), order=int(agent["order"]))
-            response.valid.append(True)
+            if agent['id']:
+                contact = Contact(contactid=int(agent["id"]), order=int(agent["order"]))
+                response.valid.append(True)
+                marker = True
+            else:
+                response.valid.append(False)
+                contact = Contact(contactid=None, order=None)
+                response.message.append(f"✗ Contact {agent['name']} does not exist in Neotoma.")
+                marker = False
         except Exception as e:
             contact = Contact(contactid=None, order=None)
             response.message.append(f"✗ Contact DatasetPI is not correct. {e}")
             response.valid.append(False)
-        finally:
+        if marker == True:
             try:
                 contact.insert_pi(cur, uploader["datasetid"].datasetid)
                 response.message.append(f"✔ Added PI {agent['id']}.")
             except Exception as e:
                 response.message.append(f"✗ DatasetPI cannot be added. {e}")
                 response.valid.append(False)
+        else:
+            continue
 
     response.datasetpi = contids
     response.validAll = all(response.valid)
