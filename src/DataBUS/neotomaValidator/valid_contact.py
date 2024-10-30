@@ -18,7 +18,9 @@ def valid_contact(cur, csv_template, yml_dict):
 
     for i, id in enumerate(inputs):
         id["contactid"] = list(set(id["contactid"]))
-        id["contactname"] = list(set(id["contactname"]))
+        if len(id["contactid"]) == 1 and isinstance(id["contactid"][0],str):
+            id["contactid"] = id["contactid"][0].split(" | ")
+        id["contactid"] = list(set(id["contactid"]))
         id["table"] = table[i]
     for element in inputs:
         response.message.append(
@@ -61,7 +63,7 @@ def valid_contact(cur, csv_template, yml_dict):
                 try:
                     Contact(contactid=id, contactname=person["name"], order=None)
                     response.valid.append(True)
-                    response.message.append("  ✔ Contact object created")
+                    #response.message.append("  ✔ Contact object created")
                 except Exception as e:
                     response.valid.append(False)
                     response.message.append(f"  ✗ Cannot create Contact object: {e}")

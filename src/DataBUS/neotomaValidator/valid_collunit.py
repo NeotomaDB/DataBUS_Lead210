@@ -44,10 +44,28 @@ def valid_collunit(cur, yml_dict, csv_file):
             nh.pull_params(params, yml_dict, csv_file, "ndb.collectionunits")
         )
     except Exception as e:
-        response.validAll = False 
-        response.message.append("CU parameters cannot be properly extracted. Verify the CSV file.")
-        response.message.append(e)
-        return response
+        error_message = str(e)
+        try:
+            if "time data" in error_message.lower():
+                event_dates = [item.get('eventDate') for item in csv_file if 'eventDate' in item]
+                new_date = list(set(event_dates))
+                assert len(new_date) == 1, "There should only be one date"
+                new_date = new_date[0]
+                if isinstance(new_date, str) and len(new_date) > 4:
+                    if len(new_date) == 7 and new_date[4] == '-' and new_date[5:7].isdigit():
+                        new_date = f"{new_date}-01"
+                    elif new_date.endswith("--"):
+                        new_date = None
+            params.remove("colldate")
+            inputs = nh.clean_inputs(
+            nh.pull_params(params, yml_dict, csv_file, "ndb.collectionunits") ) 
+            inputs["colldate"] = new_date
+            response.valid.append(True)
+        except Exception as inner_e:
+            response.validAll = False
+            response.message.append("CU parameters cannot be properly extracted. {e}\n")
+            response.message.append(str(inner_e))
+            return response
 
     for key, value in inputs.items():
         if isinstance(value, list) and len(value) == 1:
