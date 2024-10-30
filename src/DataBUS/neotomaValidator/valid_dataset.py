@@ -11,17 +11,21 @@ def valid_dataset(cur, yml_dict, csv_file):
         "datasettypeid": nh.retrieve_dict(yml_dict, "ndb.datasettypes.datasettypeid")[
             0
         ]["value"].lower(),
+        "database": nh.retrieve_dict(yml_dict, "ndb.datasetdatabases.databasename"),
     }
-
     if inputs["datasetname"] and isinstance(inputs["datasetname"], list):
-        if isinstance([inputs["datasetname"][0]], str):
-            inputs["datasetname"] = inputs["datasetname"][0]["value"].lower()
-        elif isinstance(inputs["datasetname"][0], dict):
-            inputs["datasetname"] = inputs["datasetname"][0]["value"].lower()
-    
+        if isinstance(inputs["datasetname"][0], dict):
+            if isinstance(inputs["datasetname"][0]["value"], str):
+                inputs["datasetname"] = inputs["datasetname"][0]["value"].lower()
+            else:
+                inputs["datasetname"] = inputs["datasetname"][0]["value"]
     else:
         inputs["datasetname"] = None
 
+    if inputs["datasetname"] == None:
+        if inputs["database"][0]['value'].lower() == "East Asian Nonmarine Ostracod Database".lower():
+            inputs["datasetname"] = f"EANOD/handle/OST"
+    
     response.message.append(f"Datasetname: {inputs['datasetname']}")
     response.message.append(f"Datasettype: {inputs['datasettypeid']}")
     inputs["notes"] = nh.clean_inputs(
