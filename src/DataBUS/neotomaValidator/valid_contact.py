@@ -32,12 +32,14 @@ def valid_contact(cur, csv_template, yml_dict):
             continue
 
         namematch = []
+
         for name in agentname:
             response.message.append(f"  *** Named Contact: {name} ***")
             nameQuery = """
-                    SELECT contactid, contactname
-                    FROM ndb.contacts AS ct
-                    WHERE to_tsvector(ct.contactname) @@ plainto_tsquery(%(name)s);"""
+                    SELECT contactid, contactname, similarity(contactname, %(name)s) AS sim_score
+                    FROM ndb.contacts
+                    WHERE contactname %% %(name)s
+                    ORDER BY sim_score DESC;"""
             cur.execute(nameQuery, {"name": name})
 
             result = {"name": name, "match": cur.fetchall()}
@@ -53,7 +55,7 @@ def valid_contact(cur, csv_template, yml_dict):
                 id = next(
                     (
                         number
-                        for number, name in person["match"]
+                        for number, name, sim in person["match"]
                         if name == person["name"]
                     ),
                     None,
