@@ -17,19 +17,26 @@ def insert_dataset(cur, yml_dict, csv_file, uploader):
             'valid' (bool): Indicates if insertions were successful.
     """
     response = Response()
-
     inputs = {
         "datasetname": nh.retrieve_dict(yml_dict, "ndb.datasets.datasetname"),
         "datasettypeid": nh.retrieve_dict(yml_dict, "ndb.datasettypes.datasettypeid")[
             0
         ]["value"].lower(),
+        "database": nh.retrieve_dict(yml_dict, "ndb.datasetdatabases.databasename"),
     }
-
     if inputs["datasetname"] and isinstance(inputs["datasetname"], list):
         if isinstance(inputs["datasetname"][0], dict):
-            inputs["datasetname"] = inputs["datasetname"][0]["value"].lower()
+            if isinstance(inputs["datasetname"][0]["value"], str):
+                inputs["datasetname"] = inputs["datasetname"][0]["value"].lower()
+            else:
+                inputs["datasetname"] = inputs["datasetname"][0]["value"]
     else:
         inputs["datasetname"] = None
+
+    if inputs["datasetname"] == None:
+        if inputs["database"][0]['value'].lower() == "East Asian Nonmarine Ostracod Database".lower():
+            inputs["datasetname"] = f"EANOD/{uploader['collunitid'].handle}/OST"
+        #Extract database column
 
     inputs["notes"] = nh.clean_inputs(
         nh.pull_params(["notes"], yml_dict, csv_file, "ndb.datasets")
