@@ -94,6 +94,7 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
         cur.execute(query, {"depenvt": inputs["depenvtid"][0].lower()})
         inputs["depenvtid"] = cur.fetchone()[0]
 
+    response.handle = inputs["handle"]
     try:
         cu = CollectionUnit(
             siteid=uploader["sites"].siteid,

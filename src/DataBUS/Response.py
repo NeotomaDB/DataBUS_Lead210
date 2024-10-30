@@ -52,6 +52,7 @@ class CUResponse(Response):
         self.culist = []
         self.closecu = []
         self.cuid = None
+        self.handle = None
 
     def __str__(self):
         response_str = super().__str__()
