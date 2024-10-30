@@ -39,7 +39,8 @@ def valid_contact(cur, csv_template, yml_dict):
                     SELECT contactid, contactname, similarity(contactname, %(name)s) AS sim_score
                     FROM ndb.contacts
                     WHERE contactname %% %(name)s
-                    ORDER BY sim_score DESC;"""
+                    ORDER BY sim_score DESC
+                    LIMIT 3;"""
             cur.execute(nameQuery, {"name": name})
 
             result = {"name": name, "match": cur.fetchall()}

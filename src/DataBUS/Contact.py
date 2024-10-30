@@ -1,6 +1,6 @@
 class Contact:
     def __init__(self, contactid, contactname=None, order=None):
-        if isinstance(contactid, int):
+        if isinstance(contactid, int) or contactid is None:
             self.contactid = contactid
         else:
             raise ValueError("ContactID must be an integer.")
