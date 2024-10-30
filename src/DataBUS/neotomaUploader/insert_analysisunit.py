@@ -24,7 +24,6 @@ def insert_analysisunit(cur, yml_dict, csv_file, uploader):
         "recdatecreated",
         "recdatemodified",
     ]
-    print("CU:", uploader['collunitid'].cuid)
     try:
         inputs = nh.clean_inputs(
             nh.pull_params(params, yml_dict, csv_file, "ndb.analysisunits")
@@ -63,8 +62,6 @@ def insert_analysisunit(cur, yml_dict, csv_file, uploader):
     if inputs['depth']:
         for i in range(0, len(inputs["depth"])):
             try:
-                #print(au)
-                #print(inputs)
                 au = AnalysisUnit(
                 collectionunitid=uploader["collunitid"].cuid,
                 analysisunitname=inputs["analysisunitname"],
