@@ -10,11 +10,17 @@ def insert_data_long(cur, yml_dict, filename, uploader):
     columns_to_check = ['scientificName', 'organismQuantity', 'variableelementid', 'variablecontextid']
     existing_columns = [col for col in columns_to_check if col in df.columns]
 
+    var_element = nh.retrieve_dict(yml_dict, "ndb.variableelements.variableelementid")
+    var_element = var_element[0]['value']
+    var_query = """SELECT variableelementid FROM ndb.variableelements
+                    WHERE LOWER(variableelement) = %(var_element)s;"""
+    cur.execute(var_query, {'var_element': var_element})
+    var_id = cur.fetchone()
+
     inputs = [{'taxonname': row['scientificName'], 
                'value': None if pd.isna(row['organismQuantity']) 
                else row['organismQuantity'],
-               'unitcolumn': 'present/absent',
-               'variableelementid': row['variableelementid'] if 'variableelementid' in existing_columns else None,
+               'variableelementid': var_id[0] if var_id else None,
                'variablecontextid': row['variablecontextid'] if 'variablecontextid' in existing_columns else None} for _, row in df.iterrows()]
 
     regex = r'^(\w+\s*\w+)'
@@ -23,6 +29,14 @@ def insert_data_long(cur, yml_dict, filename, uploader):
         var_id = []
         # data_counter = 0
         #for i in range(validator["sample"].sa_counter):
+        if val_dict['value']:
+            if isinstance(val_dict['value'], (int, float)) and val_dict['value'] not in {0, 1}:
+                val_dict['unitcolumn'] = 'NISP'
+            else:
+                val_dict['unitcolumn'] = 'present/absent'
+        else:
+            val_dict['unitcolumn'] = 'present/absent'
+
         counter = 0
         get_taxonid = (
             """SELECT taxonid FROM ndb.taxa WHERE LOWER(taxonname) = %(taxonname)s;"""
@@ -91,7 +105,6 @@ def insert_data_long(cur, yml_dict, filename, uploader):
                 )
                 varid = None
         if varid:
-            print("varid", varid)
             varid = varid[0]
             response.valid.append(True)
         else:
@@ -109,7 +122,7 @@ def insert_data_long(cur, yml_dict, filename, uploader):
                 sampleid=int(uploader["samples"].sampleid[0]),
                 variableid=int(varid),
                 value=val_dict["value"],
-                )
+                ) 
             response.valid.append(True)
             var_id.append(varid)
             try:

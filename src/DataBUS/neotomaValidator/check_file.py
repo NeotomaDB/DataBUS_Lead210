@@ -15,12 +15,13 @@ def check_file(filename):
     modified_filename = f"{filename}".replace("data/", "data/validation_logs/")
     logfile = modified_filename + ".valid.log"
 
-    if os.path.exists(logfile):
+    if os.path.exists(logfile): 
         error = []
         with open(logfile, "r", encoding="utf-8") as f:
             for line in f:
                 error = re.match("✗", line)
-                if error:
+                error2 = re.match("Valid: FALSE", line)
+                if error or error2:
                     response["match"] = response["match"] + 1
         if response["match"] == 0:
             response["pass"] = True
