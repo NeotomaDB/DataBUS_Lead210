@@ -24,7 +24,7 @@ def valid_csv(filename, yml_data):
     # Take directly from .yml file
     col_values = [d.get("column") for d in yml_data]
     # Remove specific columns from col_values as they are taken from the metadata in the xlsx template
-    columns_to_remove = ["databaseid", "databasename", "datasettypeid", "labnumber"]
+    columns_to_remove = ["databaseid", "databasename", "datasettypeid", "labnumber", "variableelement"]
     col_values = [col for col in col_values if col not in columns_to_remove]
 
     if not os.path.isfile(filename):
@@ -47,18 +47,17 @@ def valid_csv(filename, yml_data):
 
     # Report in the log
     if diff_col == diff_val:
-        message = ["✔  The column names and flattened YAML keys match"]
-        response["message"].append(message)
+        response["message"].append("✔  The column names and flattened YAML keys match")
         response["valid"].append(True)
     else:
         response["message"].append(
-            ["✗  The column names and flattened YAML keys do not match"]
+            "?  The column names and flattened YAML keys do not match"
         )
         response["message"].append(
-            [f"Columns from the data frame not in the YAML template: {diff_val}"]
+            f"Columns from the data frame not in the YAML template: {diff_val}"
         )
         response["message"].append(
-            [f"Columns from the YAML template are not in the data frame: {diff_col}"]
+            f"Columns from the YAML template are not in the data frame: {diff_col}"
         )
         response["valid"].append(False)
     response["valid"] = all(response["valid"])

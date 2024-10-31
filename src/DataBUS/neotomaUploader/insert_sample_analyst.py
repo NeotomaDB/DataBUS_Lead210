@@ -30,29 +30,29 @@ def insert_sample_analyst(cur, yml_dict, csv_file, uploader):
     contids = nh.get_contacts(cur, inputs["contactid"])
 
     for i in range(len(uploader["samples"].sampleid)):
-        for contact in contids:
+        for agent in contids:
             try:
                 if agent['id']:
-                    agent = Contact(contactid=int(agent["id"]), order=int(agent["order"]))
+                    contact = Contact(contactid=int(agent["id"]), order=int(agent["order"]))
                     response.valid.append(True)
                     marker = True
                 else:
                     response.valid.append(False)
-                    agent = Contact(contactid=None, order=None)
+                    contact = Contact(contactid=None, order=None)
                     response.message.append(f"✗ Contact {agent['name']} does not exist in Neotoma.")
                     marker = False
             except Exception as e:
-                agent = (Contact(contactid=contact["id"]),)
+                contact = (Contact(contactid=agent["id"]),)
                 response.message.append(f"✗ Sample Analyst data is not correct. {e}")
                 response.valid.append(False)
             if marker == True:
                 try:
-                    agent.insert_sample_analyst(
+                    contact.insert_sample_analyst(
                         cur, sampleid=int(uploader["samples"].sampleid[i])
                     )
                     response.valid.append(True)
                     response.message.append(
-                        f"✔  Sample Analyst {contact['id']} added "
+                        f"✔  Sample Analyst {agent['id']} added "
                         f"for sample {uploader['samples'].sampleid[i]}."
                     )
                 except:
