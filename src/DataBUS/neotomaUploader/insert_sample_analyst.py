@@ -58,7 +58,6 @@ def insert_sample_analyst(cur, yml_dict, csv_file, uploader):
                 except:
                     response.message.append(f"Executed temporary query.")
                     response.valid.append(False)
-                response.valid.append(False)
 
     response.validAll = all(response.valid)
     return response
