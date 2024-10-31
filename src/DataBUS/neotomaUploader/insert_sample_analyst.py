@@ -32,15 +32,20 @@ def insert_sample_analyst(cur, yml_dict, csv_file, uploader):
     for i in range(len(uploader["samples"].sampleid)):
         for contact in contids:
             try:
-                agent = Contact(
-                    contactid=int(contact["id"]), order=int(contact["order"])
-                )
-                response.valid.append(True)
+                if agent['id']:
+                    agent = Contact(contactid=int(agent["id"]), order=int(agent["order"]))
+                    response.valid.append(True)
+                    marker = True
+                else:
+                    response.valid.append(False)
+                    agent = Contact(contactid=None, order=None)
+                    response.message.append(f"✗ Contact {agent['name']} does not exist in Neotoma.")
+                    marker = False
             except Exception as e:
                 agent = (Contact(contactid=contact["id"]),)
                 response.message.append(f"✗ Sample Analyst data is not correct. {e}")
                 response.valid.append(False)
-            finally:
+            if marker == True:
                 try:
                     agent.insert_sample_analyst(
                         cur, sampleid=int(uploader["samples"].sampleid[i])
