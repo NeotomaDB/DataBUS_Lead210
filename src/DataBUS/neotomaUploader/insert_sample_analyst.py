@@ -20,8 +20,13 @@ def insert_sample_analyst(cur, yml_dict, csv_file, uploader):
     response = Response()
     params = ["contactid"]
     inputs = nh.pull_params(params, yml_dict, csv_file, "ndb.sampleanalysts")
-
+    
+    # Use this method to preserve order.
     inputs["contactid"] = list(dict.fromkeys(inputs["contactid"]))
+    if len(inputs["contactid"]) == 1 and isinstance(inputs["contactid"][0],str):
+        inputs["contactid"] = inputs["contactid"][0].split(" | ")
+    inputs["contactid"] = list(dict.fromkeys(inputs["contactid"]))
+
     contids = nh.get_contacts(cur, inputs["contactid"])
 
     for i in range(len(uploader["samples"].sampleid)):
@@ -50,5 +55,5 @@ def insert_sample_analyst(cur, yml_dict, csv_file, uploader):
                     response.valid.append(False)
                 response.valid.append(False)
 
-    response.valid = all(response.valid)
+    response.validAll = all(response.valid)
     return response

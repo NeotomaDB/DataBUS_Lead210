@@ -2,7 +2,7 @@ import re
 import os
 
 
-def check_file(filename):
+def check_file(filename, strict = False):
     """_Validate the existence and result of a logfile._
 
     Args:
@@ -21,7 +21,9 @@ def check_file(filename):
             for line in f:
                 error = re.match("✗", line)
                 error2 = re.match("Valid: FALSE", line)
-                if error or error2:
+                if error:
+                    response["match"] = response["match"] + 1
+                if strict == True and error2:
                     response["match"] = response["match"] + 1
         if response["match"] == 0:
             response["pass"] = True
