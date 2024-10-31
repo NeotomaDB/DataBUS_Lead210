@@ -22,26 +22,33 @@ def insert_data_processor(cur, yml_dict, csv_file, uploader):
 
     # Use this method to preserve order.
     inputs["contactid"] = list(dict.fromkeys(inputs["contactid"]))
-    contids = nh.get_contacts(cur, inputs["contactid"])
-    params = ["contactid"]
-    inputs = nh.pull_params(params, yml_dict, csv_file, "ndb.sampleanalysts")
+    if len(inputs["contactid"]) == 1 and isinstance(inputs["contactid"][0],str):
+        inputs["contactid"] = inputs["contactid"][0].split(" | ")
+    inputs["contactid"] = list(dict.fromkeys(inputs["contactid"]))
 
-    for contact in contids:
+    contids = nh.get_contacts(cur, inputs["contactid"])
+    for agent in contids:
         try:
-            agent = Contact(contactid=contact["id"])
-            response.valid.append(True)
-            response.message.append(f"✔ Added Processor object {contact['id']}.")
+            if agent['id']:
+                contact = Contact(contactid=agent["id"])
+                response.valid.append(True)
+                marker = True
+            else:
+                response.valid.append(False)
+                contact = Contact(contactid=None)
+                response.message.append(f"✗ Contact {agent['name']} does not exist in Neotoma.")
+                marker = False
         except Exception as e:
-            agent = Contact(contactid=1)
+            contact = Contact(contactid=None)
             response.valid.append(False)
             response.message.append(f"Creating temporary insert object: {e}")
-        finally:
+        if marker == True:
             try:
-                agent.insert_data_processor(
+                contact.insert_data_processor(
                     cur, datasetid=uploader["datasetid"].datasetid
                 )
                 response.valid.append(True)
-                response.message.append(f"✔ Processor {contact['id']} inserted.")
+                response.message.append(f"✔ Processor {agent['id']} inserted.")
             except Exception as e:
                 response.message.append(
                     f"✗ Data processor information is not correct. {e}"
