@@ -205,7 +205,7 @@ class CollectionUnit:
             else:
                 cu_response.valid.append(True)
                 cu_response.message.append(f"✔  {attr} match.")
-            if overwrite[attr]:
+            if attr in overwrite and overwrite[attr]:
                 setattr(self, attr, getattr(other, attr))
                 updated_attributes.append(attr)
         return self
@@ -230,6 +230,13 @@ class CollectionUnit:
                                              _location := %(location)s,
                                              _notes := %(notes)s)
                                              """
+        if not isinstance(self.geog, Geog):
+            latitude = None
+            longitude = None
+        else:
+            latitude = self.latitude
+            longitue = self.longitude
+
         inputs = {
             "siteid": self.siteid,
             "collectionunitid": self.collectionunitid,
@@ -239,8 +246,8 @@ class CollectionUnit:
             "collunitname": self.collunitname,
             "colldate": self.colldate,
             "colldevice": self.colldevice,
-            "ns": self.geog.latitude,
-            "ew": self.geog.longitude,
+            "ns": latitude,
+            "ew": longitude,
             "gpsaltitude": self.gpsaltitude,
             "gpserror": self.gpserror,
             "waterdepth": self.waterdepth,

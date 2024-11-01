@@ -6,6 +6,9 @@ class Geog:
     def __init__(self, coords):
         if not (isinstance(coords, (list, tuple)) or coords is None):
             raise TypeError("✗ Coordinates must be a list or a tuple")
+        if coords is None:
+            self.latitude = None
+            self.longitude = None
         if len(coords) != 2:
             raise ValueError("✗ Coordinates must have a length of 2.")
         if not (isinstance(coords[0], (int, float)) or coords[0] is None):
@@ -26,7 +29,10 @@ class Geog:
             self.hemisphere = None
 
     def __eq__(self, other):
-        return self.latitude == other.latitude and self.longitude == other.longitude
+        if not isinstance(other, Geog):
+            return False
+        else:
+            return self.latitude == other.latitude and self.longitude == other.longitude
 
     def __str__(self):
         return f"(Lat:{self.latitude}, Long: {self.longitude})"
