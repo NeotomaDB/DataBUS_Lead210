@@ -111,5 +111,5 @@ def insert_chron_control(cur, yml_dict, csv_file, uploader):
             ccid = cc.insert_to_db(cur)
             response.ccid.append(ccid)
             response.valid.append(False)
-    response.valid = all(response.valid)
+    response.validAll = all(response.valid)
     return response

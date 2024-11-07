@@ -60,5 +60,5 @@ def insert_sample_age(cur, yml_dict, csv_file, uploader):
                 response.message.append(f"✗ Cannot add Samples Age: {e}")
                 response.valid.append(False)
 
-    response.valid = all(response.valid)
+    response.validAll = all(response.valid)
     return response

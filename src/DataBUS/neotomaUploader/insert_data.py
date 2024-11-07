@@ -59,7 +59,7 @@ def insert_data(cur, yml_dict, csv_file, uploader):
             counter2 = 0
             if vunitsid:
                 vunitsid = int(vunitsid)
-                response.message.append(f"✔ Units ID {vunitsid} found.")
+                #response.message.append(f"✔ Units ID {vunitsid} found.")
             else:
                 counter2 += 1
                 vunitsid = counter
@@ -101,7 +101,7 @@ def insert_data(cur, yml_dict, csv_file, uploader):
             if varid:
                 varid = varid[0]
                 response.valid.append(True)
-                response.message.append(f"✔ Var ID {varid} found.")
+                #response.message.append(f"✔ Var ID {varid} found.")
             else:
                 response.message.append(
                     "? Var ID not found. Executing ts.insertvariable"

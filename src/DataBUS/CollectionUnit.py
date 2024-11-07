@@ -235,7 +235,7 @@ class CollectionUnit:
             longitude = None
         else:
             latitude = self.latitude
-            longitue = self.longitude
+            longitude = self.longitude
 
         inputs = {
             "siteid": self.siteid,

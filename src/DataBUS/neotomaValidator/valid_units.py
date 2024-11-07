@@ -22,7 +22,7 @@ def valid_units(cur, yml_dict, df):
     for entry in vocab_entries:
         column_values = df[entry["column"]].tolist()
         if entry["vocab"] == ["fixed"]:
-            if all(elem == column_values[0] for elem in column_values):
+            if all(elem.lower() == column_values[0].lower() for elem in column_values):
                 response["valid"].append(True)
                 response["message"].append(
                     f"✔ Column {entry['column']} contains valid units."

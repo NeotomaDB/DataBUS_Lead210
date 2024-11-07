@@ -47,7 +47,7 @@ metadata:
   required: false
   rowwise: false
   type: string
-  vocab: [core-site, GPS, core-site approximate, lake center]
+  vocab: [core-site, GPS, core-site approximate, lake center, Central depositional basin]
 - column: Core.number.or.code
   neotoma: ndb.collectionunits.core
   notes: Handle name will be built from Core when Handle is not given.

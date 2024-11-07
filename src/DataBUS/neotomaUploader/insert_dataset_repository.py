@@ -40,5 +40,5 @@ def insert_dataset_repository(cur, yml_dict, csv_file, uploader):
         response.message.append(f"✔ Repository information is not available.")
         response.valid.append(True)
 
-    response.valid = all(response.valid)
+    response.validAll = all(response.valid)
     return response

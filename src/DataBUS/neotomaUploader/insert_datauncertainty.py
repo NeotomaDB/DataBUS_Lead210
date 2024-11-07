@@ -65,7 +65,7 @@ def insert_datauncertainty(cur, yml_dict, csv_file, uploader):
                 try:
                     du.insert_to_db(cur)
                     response.valid.append(True)
-                    response.message.append(f"✔ Added Data Uncertainty.")
+                    #response.message.append(f"✔ Added Data Uncertainty.")
                 except Exception as e:
                     response.valid.append(False)
                     response.message.append(f"✗ Cannot add Data Uncertainty: {e}")
