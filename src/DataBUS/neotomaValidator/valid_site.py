@@ -77,7 +77,7 @@ def valid_site(cur, yml_dict, csv_file):
 
     if site.siteid is None:
         close_sites = site.find_close_sites(cur, limit=3)
-        print(close_sites)
+        #print(close_sites)
         if close_sites:
             response.message.append(
                 "?  One or more sites exist close to the requested site."
