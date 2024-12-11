@@ -8,11 +8,14 @@ def valid_dataset(cur, yml_dict, csv_file):
 
     inputs = {
         "datasetname": nh.retrieve_dict(yml_dict, "ndb.datasets.datasetname"),
-        "datasettypeid": nh.retrieve_dict(yml_dict, "ndb.datasettypes.datasettypeid")[
+        "datasettypeid": nh.retrieve_dict(yml_dict, "ndb.datasettypes.datasettype")[
             0
         ]["value"].lower(),
         "database": nh.retrieve_dict(yml_dict, "ndb.datasetdatabases.databasename"),
-    }
+    } 
+
+
+    # inputs["notes"] = nh.clean_inputs(nh.pull_params(["notes"], yml_dict, csv_file, "ndb.datasets"))
     if inputs["datasetname"] and isinstance(inputs["datasetname"], list):
         if isinstance(inputs["datasetname"][0], dict):
             if isinstance(inputs["datasetname"][0]["value"], str):
@@ -25,13 +28,14 @@ def valid_dataset(cur, yml_dict, csv_file):
     if inputs["datasetname"] == None:
         if inputs["database"][0]['value'].lower() == "East Asian Nonmarine Ostracod Database".lower():
             inputs["datasetname"] = f"EANOD/handle/OST"
+
+
     
     response.message.append(f"Datasetname: {inputs['datasetname']}")
     response.message.append(f"Datasettype: {inputs['datasettypeid']}")
     inputs["notes"] = nh.clean_inputs(
         nh.pull_params(["notes"], yml_dict, csv_file, "ndb.datasets")
-    )
-    inputs["notes"] = inputs["notes"]["notes"]
+    )["notes"]
 
     query = "SELECT datasettypeid FROM ndb.datasettypes WHERE LOWER(datasettype) = %(ds_type)s"
     cur.execute(query, {"ds_type": f"{inputs['datasettypeid'].lower()}"})

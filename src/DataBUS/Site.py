@@ -61,6 +61,8 @@ class Site:
             if self.sitedescription == '':
                 self.sitedescription = None
         
+        if isinstance(notes, list):
+            notes = notes[0]
         if not (isinstance(notes, str) or notes is None):
             raise TypeError("Notes must be a str or None.")
         self.notes = notes
@@ -151,9 +153,8 @@ class Site:
         self.siteid = cur.fetchone()[0]
         return self.siteid
 
-    def find_close_sites(self, cur, dist=10000, limit=10):
-        close_site = """
-            SELECT st.*,
+    def find_close_sites(self, cur, dist=10000, limit=5):
+        close_site = """SELECT st.*,
                 ST_SetSRID(st.geog::geometry, 4326)::geography <-> ST_SetSRID(ST_Point(%(long)s, %(lat)s), 4326)::geography AS dist
             FROM   ndb.sites AS st
             WHERE ST_SetSRID(st.geog::geometry, 4326)::geography <-> ST_SetSRID(ST_Point(%(long)s, %(lat)s), 4326)::geography < %(dist)s

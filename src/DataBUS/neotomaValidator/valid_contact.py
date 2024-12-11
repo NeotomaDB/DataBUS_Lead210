@@ -13,7 +13,7 @@ def valid_contact(cur, csv_template, yml_dict):
     response = Response()
 
     params = ["contactid", "contactname"]
-    table = ["ndb.datasetpis", "ndb.sampleanalysts", "ndb.chronologies"]
+    table = ["ndb.datasetpis", "ndb.sampleanalysts", "ndb.chronologies", "ndb.datasetprocessor"]
     inputs = nh.pull_params(params, yml_dict, csv_template, table)
 
     for i, id in enumerate(inputs):
@@ -72,9 +72,8 @@ def valid_contact(cur, csv_template, yml_dict):
                     response.message.append(f"  ✗ Cannot create Contact object: {e}")
             else:
                 response.message.append(
-                    f"  ? No exact match found for {person['name']}, several potential matches follow:"
+                    f"  ? No exact match found for {person['name']}, but several potential matches follow:"
                 )
-                response.valid.append(False)
                 for i in person["match"]:
                     response.message.append(f"   * {i[1]}")
     response.validAll = all(response.valid)

@@ -1,9 +1,7 @@
 import datetime
 import re
-from itertools import chain
 from .retrieve_dict import retrieve_dict
 from .clean_column import clean_column
-
 
 def pull_params(params, yml_dict, csv_template, table=None):
     """_Pull parameters associated with an insert statement from the yml/csv tables._
@@ -23,6 +21,15 @@ def pull_params(params, yml_dict, csv_template, table=None):
         if re.match(".*\.$", table) == None:
             table = table + "."
         add_units_inputs_list = []
+        extended_params = []
+        for param in params:
+            subfields = [entry for entry in yml_dict['metadata'] if entry.get('neotoma', '').startswith(f'{table}{param}.')]
+            if subfields:
+                for entry in subfields:
+                    param_name = entry['neotoma'].replace(f'{table}', "")
+                    params.append(param_name)
+                params.remove(param)
+
         for i in params:
             valor = retrieve_dict(yml_dict, table + i)
             if len(valor) > 0:
@@ -35,6 +42,14 @@ def pull_params(params, yml_dict, csv_template, table=None):
                         match val.get("type"):
                             case "string":
                                 clean_valor = list(map(str, clean_valor))
+                                if i == "notes":
+                                    if all(j.strip() == "" for j in clean_valor):
+                                        clean_valor = f""
+                                    else:
+                                        clean_valor = f" {val['column']}: {clean_valor[0]}"
+                                if "notes" in add_unit_inputs and add_unit_inputs["notes"]:
+                                   clean_valor = f'{add_unit_inputs["notes"]}' + f'{clean_valor}'
+
                             case "date":
                                 # clean_valor = list(map(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date(), chain(*clean_valor)))
                                 clean_valor = list(

@@ -35,9 +35,11 @@ def valid_site(cur, yml_dict, csv_file):
         "notes",
         "geog",
     ]
+
     inputs = nh.clean_inputs(nh.pull_params(params, yml_dict, csv_file, "ndb.sites"))
     overwrite = nh.pull_overwrite(params, yml_dict, "ndb.sites")
-
+    if 'geog.latitude' and 'geog.longitude' in inputs:
+        inputs['geog'] = (inputs["geog.latitude"][0], inputs["geog.longitude"][0])
     try:
         assert all(
             inputs.get(key) is not None and inputs[key] != []
@@ -55,10 +57,9 @@ def valid_site(cur, yml_dict, csv_file):
             f"? This set is expected to be " f"in the {geog.hemisphere} hemisphere."
         )
     except (TypeError, WrongCoordinates) as e:
-        response.valid = False
+        response.valid.append(False)
         response.message.append(str(e))
         geog = None
-
     try:
         # site = Site(**inputs, geog=geog)
         site = Site(
@@ -70,14 +71,13 @@ def valid_site(cur, yml_dict, csv_file):
             notes=inputs["notes"],
             geog=geog,
         )
+        
     except (ValueError, TypeError, Exception) as e:
         response.valid.append(False)
         response.message.append(e)
         site = Site()
-
     if site.siteid is None:
         close_sites = site.find_close_sites(cur, limit=3)
-        #print(close_sites)
         if close_sites:
             response.message.append(
                 "?  One or more sites exist close to the requested site."

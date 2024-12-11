@@ -1,7 +1,7 @@
 import DataBUS.neotomaHelpers as nh
 from DataBUS import Response, DataUncertainty
-
-
+import re
+ 
 def insert_datauncertainty(cur, yml_dict, csv_file, uploader):
     """"""
     response = Response()
@@ -15,18 +15,23 @@ def insert_datauncertainty(cur, yml_dict, csv_file, uploader):
         inputs
     ), "Taxa Uncertainties and extracted uncertainties do not match."
     taxacounter = 0
+    
     for i, uncertainty in enumerate(inputs):
         assert len(uncertainty["uncertainty"]) == len(
             uploader["data"].uncertaintyinputs[i]["dataid"]
         ), (f"Number of " f"uncertainty values does not match number of data values")
-
         # SQL uncertainty basis ID
+
+        uncertainty["uncertaintybasis"] = re.sub(r'(\d+)SD', r'\1 Standard Deviation', uncertainty["uncertaintybasis"])
+        # Replace SE with "Standard Error"
+        uncertainty["uncertaintybasis"] = re.sub(r'(\d+)SE', r'\1 Standard Error', uncertainty["uncertaintybasis"])
+
         if uncertainty["uncertaintybasis"]:
             basis_q = """
                     SELECT uncertaintybasisid from ndb.uncertaintybases
                     WHERE LOWER(uncertaintybasis) = %(uncertaintybasis)s
                     """
-            cur.execute(basis_q, {"uncertaintybasis": uncertainty["uncertaintybasis"]})
+            cur.execute(basis_q, {"uncertaintybasis": uncertainty["uncertaintybasis"].lower()})
             uncertainty["uncertaintybasisid"] = cur.fetchone()
             if uncertainty["uncertaintybasisid"]:
                 uncertainty["uncertaintybasisid"] = uncertainty["uncertaintybasisid"][0]
