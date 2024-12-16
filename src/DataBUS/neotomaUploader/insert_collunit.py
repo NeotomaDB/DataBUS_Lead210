@@ -1,6 +1,6 @@
 import DataBUS.neotomaHelpers as nh
 from DataBUS import Geog, WrongCoordinates, CollectionUnit, CUResponse
-import datetime
+import datetime 
 import importlib.resources
 
 with importlib.resources.open_text("DataBUS.sqlHelpers", "upsert_collunit.sql"
@@ -72,7 +72,12 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
             response.message.append("CU parameters cannot be properly extracted. {e}\n")
             response.message.append(str(inner_e))
             return response
-    
+    if not inputs["collunitname"]:
+        inputs["database"] = nh.retrieve_dict(yml_dict, "ndb.datasetdatabases.databasename")
+        if inputs["database"][0]['value'].lower() == "East Asian Nonmarine Ostracod Database".lower():
+            inputs["collunitname"] = f"EANOD/{inputs['handle']}/OST"
+
+
     if inputs['geog']:
         try:
             geog = Geog((inputs["geog"][0], inputs["geog"][1]))
@@ -93,7 +98,7 @@ def insert_collunit(cur, yml_dict, csv_file, uploader):
                    WHERE LOWER(depenvt) = %(depenvt)s"""
         cur.execute(query, {"depenvt": inputs["depenvtid"][0].lower()})
         inputs["depenvtid"] = cur.fetchone()[0]
-
+ 
     if isinstance(inputs["handle"], list):
         response.handle = inputs["handle"][0]
     else:

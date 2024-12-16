@@ -33,6 +33,7 @@ def pull_params(params, yml_dict, csv_template, table=None):
         for i in params:
             valor = retrieve_dict(yml_dict, table + i)
             if len(valor) > 0:
+                notes_list = []
                 for count, val in enumerate(valor):
                     new_dict = {}
                     clean_valor = clean_column(
@@ -46,9 +47,16 @@ def pull_params(params, yml_dict, csv_template, table=None):
                                     if all(j.strip() == "" for j in clean_valor):
                                         clean_valor = f""
                                     else:
-                                        clean_valor = f" {val['column']}: {clean_valor[0]}"
-                                if "notes" in add_unit_inputs and add_unit_inputs["notes"]:
-                                   clean_valor = f'{add_unit_inputs["notes"]}' + f'{clean_valor}'
+                                        #clean_valor = f" {val['column']}: {', '.join(clean_valor)}"
+                                        clean_valor = [f" {val['column']}: {num}" for num in clean_valor]
+                                        notes_list.append(clean_valor)
+                                if "notes" in add_unit_inputs:
+                                    for entry in zip(*notes_list):
+                                        formatted_entry = " ".join(part.strip() for part in entry)
+                                        clean_valor = f'{add_unit_inputs["notes"]}' + f'{formatted_entry}'
+                                else:
+                                    for entry in zip(*notes_list):
+                                        clean_valor = " ".join(part.strip() for part in entry)
 
                             case "date":
                                 # clean_valor = list(map(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date(), chain(*clean_valor)))

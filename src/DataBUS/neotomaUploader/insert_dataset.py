@@ -19,11 +19,12 @@ def insert_dataset(cur, yml_dict, csv_file, uploader):
     response = Response()
     inputs = {
         "datasetname": nh.retrieve_dict(yml_dict, "ndb.datasets.datasetname"),
-        "datasettypeid": nh.retrieve_dict(yml_dict, "ndb.datasettypes.datasettypeid")[
+        "datasettypeid": nh.retrieve_dict(yml_dict, "ndb.datasettypes.datasettype")[
             0
         ]["value"].lower(),
         "database": nh.retrieve_dict(yml_dict, "ndb.datasetdatabases.databasename"),
-    }
+    } 
+
     if inputs["datasetname"] and isinstance(inputs["datasetname"], list):
         if isinstance(inputs["datasetname"][0], dict):
             if isinstance(inputs["datasetname"][0]["value"], str):

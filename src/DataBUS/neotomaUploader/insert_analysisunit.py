@@ -33,6 +33,10 @@ def insert_analysisunit(cur, yml_dict, csv_file, uploader):
         response.valid.append(False)
         response.message.append(f"AU Elements in the CSV file are not properly inserted. Please verify the CSV file")
 
+    inputs["database"] = nh.retrieve_dict(yml_dict, "ndb.datasetdatabases.databasename")
+    if inputs["database"][0]['value'].lower() == "East Asian Nonmarine Ostracod Database".lower():
+            inputs["analysisunitname"] = f"EANOD/{uploader['collunitid'].handle}/OST"
+
     ## Placeholder
     if not inputs['mixed']:
         inputs['mixed'] = False

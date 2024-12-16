@@ -30,6 +30,10 @@ def insert_sample(cur, yml_dict, csv_file, uploader):
     inputs["labnumber"] = nh.retrieve_dict(yml_dict, "ndb.samples.labnumber")
     inputs["labnumber"] = inputs["labnumber"][0]["value"]
 
+    inputs["database"] = nh.retrieve_dict(yml_dict, "ndb.datasetdatabases.databasename")
+    if inputs["database"][0]['value'].lower() == "East Asian Nonmarine Ostracod Database".lower():
+            inputs["samplename"] = f"EANOD/{uploader['collunitid'].handle}/OST"
+
     for j in range(len(uploader["anunits"].auid)):
         get_taxonid = """SELECT * FROM ndb.taxa WHERE taxonname %% %(taxonname)s;"""
         cur.execute(get_taxonid, {"taxonname": inputs["taxonname"]})

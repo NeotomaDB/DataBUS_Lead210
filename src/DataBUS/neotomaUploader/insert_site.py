@@ -39,6 +39,9 @@ def insert_site(cur, yml_dict, csv_file):
     inputs = nh.clean_inputs(nh.pull_params(params, yml_dict, csv_file, "ndb.sites"))
     overwrite = nh.pull_overwrite(params, yml_dict, "ndb.sites")
 
+    if 'geog.latitude' and 'geog.longitude' in inputs:
+        inputs['geog'] = (inputs["geog.latitude"][0], inputs["geog.longitude"][0])
+
     try:
         geog = Geog((inputs["geog"][0], inputs["geog"][1]))
         response.message.append(
@@ -117,4 +120,3 @@ def insert_site(cur, yml_dict, csv_file):
             response.sitelist.append(temp_site)
     response.validAll = all(response.valid)
     return response
- 
