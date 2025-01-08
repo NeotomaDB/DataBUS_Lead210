@@ -1,16 +1,18 @@
+# DataBUS
+
 [![NSF-1948926](https://img.shields.io/badge/NSF-1948926-blue.svg)](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1948926)
 
-# Working with the Python Data Upload Template
+## Working with the Python Data Upload Template
 
-This set of python scripts is intended to support the bulk upload of a set of records to Neotoma. It consists of three key steps:
+This set of python scripts is intended to support the bulk upload of 210Pb records to Neotoma. It consists of three key steps:
 
 1. Development of a data template (YAML and CSV)
 2. Template validation
 3. Data upload
 
-Once these three steps are completed the uploader will push the template files to the `neotomaholding` database. This is a temporary database that is intended to hold data within the Neotoma Paleoecology Database system for access by Tilia. Tilia is then used to provide a final data check and upload of data to Neotoma proper.
+Once these three steps are completed the DataBUS will push the template files to the `neotomaholding` database. This is a temporary database that is intended to hold data within the Neotoma Paleoecology Database system for access by Tilia. Tilia is then used to provide a final data check and upload of data to Neotoma proper.
 
-![The process of uploading records using the bulk uploader. Individuals follow the steps outlined above and described further in this README file.](BulkUploaderSchema.svg)
+![The process of uploading records using the bulk uploader. Individuals follow the steps outlined above and described further in this README file.](img/BulkUploaderSchema.svg)
 
 ## Template Development
 
@@ -108,7 +110,7 @@ The validation step identifies each element of the template being validated, pro
 The upload process is initiated using the command:
 
 ```bash
-> python3 template_upload.py
+> python3 data_upload.py
 ```
 
 The upload process will return the distince siteids, and related data identifiers for the uploads.
