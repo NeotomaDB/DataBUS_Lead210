@@ -13,17 +13,17 @@ from DataBUS.neotomaHelpers.logging_dict import logging_response
 Use this command after having validated the files to 
 upload to Neotoma.
 To run, you can use: 
-python data_upload.py --template='templates/template.yml'
+python src/data_upload.py --template='src/templates/template.yml'
 
 You can also use a different template file by running:
-python data_upload.py --template='template.xlsx'
+python src/data_upload.py --template='template.xlsx'
 
 Change 'template.xlsx' to desired filename as long as 
 template file that has an .xlsx or .yml extension
 """
 
 load_dotenv()
-data = json.loads(os.getenv('PGDB_TANK'))
+data = json.loads(os.getenv('PGDB_TANK')) #'PGDB_LOCAL' when uploading to Neotoma proper
 
 conn = psycopg2.connect(**data, connect_timeout = 5)
 cur = conn.cursor()
