@@ -14,8 +14,9 @@ from dotenv import load_dotenv
 import DataBUS.neotomaValidator as nv
 import DataBUS.neotomaHelpers as nh
 from DataBUS.neotomaHelpers.logging_dict import logging_dict, logging_response
-"""To run:
-python src/template_validate.py --template src/template.yml
+"""
+To run:
+python src/template_validate.py --template src/templates/template.yml
 """
 
 args = nh.parse_arguments()
