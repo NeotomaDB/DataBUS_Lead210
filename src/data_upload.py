@@ -61,7 +61,6 @@ for filename in filenames:
     yml_dict = nh.template_to_dict(temp_file=args['template'])
     yml_data = yml_dict['metadata']
 
-    # Verify that the CSV columns and the YML keys match
     csv_valid = valid_csv(filename = filename,
                                 yml_data = yml_data)
     logfile.append('\n === Inserting Publications ===')
@@ -70,15 +69,7 @@ for filename in filenames:
     uploader['sites'] = nu.insert_site(cur = cur,
                                     yml_dict = yml_dict,
                                     csv_file = csv_file)
-    #logfile = logging_dict(uploader['sites'], logfile, 'sitelist')
     logfile = logging_response(uploader['sites'], logfile)
-
-    #     # logfile.append('=== Inserting Site Geopol ===')
-    #     # uploader['geopolid'] = nu.insert_geopol(cur = cur,
-    #     #                                        yml_dict = yml_dict,
-    #     #                                        csv_file = csv_file,
-    #     #                                        uploader = uploader)
-    #     # logfile.append(f"Geopolitical Unit: {uploader['geopolid']}")
 
     logfile.append('\n === Inserting Collection Units ===')
     uploader['collunitid'] = nu.insert_collunit(cur = cur,
@@ -199,15 +190,15 @@ for filename in filenames:
             
     all_true = all([uploader[key].validAll for key in uploader])
     all_true = all_true and hashcheck
-    #all_true = False
     if all_true:
         print(f"{filename} was uploaded.\nMoved {filename} to the 'uploaded_files' folder.")
+        #Uncomment when ready to upload
         #conn.commit()
+        #Delete/comment when ready to upload
         conn.rollback()
         os.makedirs(uploaded_files, exist_ok=True)
         uploaded_path = os.path.join(uploaded_files, os.path.basename(filename))
         os.replace(filename, uploaded_path)
-
     else:
         print(f"filename {filename} could not be uploaded.")
         conn.rollback()
