@@ -14,8 +14,10 @@ from dotenv import load_dotenv
 import DataBUS.neotomaValidator as nv
 import DataBUS.neotomaHelpers as nh
 from DataBUS.neotomaHelpers.logging_dict import logging_dict, logging_response
+"""To run:
+python src/template_validate.py --template src/template.yml
+"""
 
-# Obtain arguments and parse them to handle command line arguments
 args = nh.parse_arguments()
 load_dotenv()
 data = json.loads(os.getenv('PGDB_LOCAL'))
