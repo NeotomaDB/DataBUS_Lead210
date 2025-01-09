@@ -63,7 +63,6 @@ for filename in filenames:
 
     csv_valid = valid_csv(filename = filename,
                                 yml_data = yml_data)
-    logfile.append('\n === Inserting Publications ===')
 
     logfile.append('\n=== Inserting New Site ===')
     uploader['sites'] = nu.insert_site(cur = cur,
