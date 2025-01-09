@@ -13,10 +13,10 @@ from DataBUS.neotomaHelpers.logging_dict import logging_response
 Use this command after having validated the files to 
 upload to Neotoma.
 To run, you can use: 
-python template_upload.py --template='templates/template.yml'
+python data_upload.py --template='templates/template.yml'
 
 You can also use a different template file by running:
-python template_upload.py --template='template.xlsx'
+python data_upload.py --template='template.xlsx'
 
 Change 'template.xlsx' to desired filename as long as 
 template file that has an .xlsx or .yml extension
